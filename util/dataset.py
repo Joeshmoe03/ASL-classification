@@ -10,7 +10,7 @@ import os
 # Instead, we will load the data in batches, and apply augmentations to the data as we load it. This will allow us to
 # train our model on the data without stuffing memory completely full.
 
-class fetchASLDataPaths():
+class ASLDataPaths():
     '''
     fetchASLDataPaths is a class that fetches the paths of the ASL dataset from a directory. The rationale behind such a class
     is the fact that our dataset is huge (relatively speaking), and we can not afford to load the entire dataset of images into memory.
@@ -47,7 +47,6 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
                  X_set: np.array, 
                  y_set: np.array,
                  batch_size: int = 32, 
-                 shuffle: bool = True, 
                  transform = None):
         '''
         The ASLBatchLoader class is a custom data loader that loads the ASL dataset in batches.
@@ -57,18 +56,10 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
             y_set: np.array - their corresponding labels.
             batch_size: int - The size of the batch that we want to load the data in.
             shuffle: Bool - Whether or not we want to shuffle the data before loading it.
-            transform: callable - A callable function that applies transformations to the data as we load it.
         '''
         self.X_set = X_set
         self.y_set = y_set
         self.batch_size = batch_size
-        self.indices = np.arange(len(X_set))
-
-        # Shuffle the indices if shuffle is set to True
-        if shuffle:
-            np.random.shuffle(self.indices)
-
-        #TODO: IMPLEMENT TRANSFORMS
         self.transform = transform
 
     def __len__(self):
@@ -95,16 +86,20 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
         batch_start = index * self.batch_size
 
         # If the batch end is greater than the length of the data directory, we set the batch end to the length of the data directory
-        batch_end = min(index + self.batch_size, len(self.data_dir))
+        batch_end = min(batch_start + self.batch_size, len(self.X_set))
 
         # These are the paths that we immediately work with in this iteration of the batching process
-        X_path_batch = self.X_set[batch_start:batch_end, 0]
-        y_batch = self.y_set[batch_start:batch_end, 1]
+        X_path_batch = self.X_set[batch_start:batch_end]
+        y_batch = self.y_set[batch_start:batch_end]
 
         # Load the images and labels from the paths
-        # Transforms are applied, should they be specified. A transform typically should
-        # include at least some resize, normalization, and other additional augmentations.
-        X_batch = np.array([self.transform(cv2.imread(file)) if self.transform is not None
-                            else cv2.imread(file) for file in X_path_batch])
+        # If a transformation is specified, we apply it to the images
+        # If no transformation is specified, we simply load the images
+        # A transformation is typically something like normalization, resizing, etc.
+        X_batch = np.array([cv2.imread(file) for file in X_path_batch])
+
+        # If a transformation is specified, we apply it to the images
+        if self.transform is not None:
+            X_batch = self.transform(X_batch)
 
         return X_batch, y_batch        

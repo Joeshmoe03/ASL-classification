@@ -1,4 +1,5 @@
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
 import numpy as np
 import cv2
 import math
@@ -99,4 +100,75 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
         if self.transform is not None:
             X_batch = self.transform(X_batch)
 
-        return X_batch, y_batch        
+        return X_batch, y_batch
+    
+# ChatGPT was used to generate these docstring. No need to do redundant work.
+def split_data(X, y, args):
+    '''
+    Split the data into training, validation, and test sets.
+    
+    Parameters:
+        X: np.array - The paths of the images.
+        y: np.array - The labels of the images.
+        test_size: float - The size of the test set.
+        val_size: float - The size of the validation set.
+        random_state: int - The random state for reproducibility.
+        
+    Returns:
+        X_train: np.array - The paths of the training images.
+        X_val: np.array - The paths of the validation images.
+        X_test: np.array - The paths of the test images.
+        y_train: np.array - The labels of the training images.
+        y_val: np.array - The labels of the validation images.
+        y_test: np.array - The labels of the test images.
+    '''
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=args.test_siz, random_state=args.seed)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=args.val_siz, random_state=args.seed)
+
+    data_splits = (X_train, X_val, X_test, y_train, y_val, y_test)
+    return data_splits
+
+# ChatGPT was used to generate these docstring. No need to do redundant work.
+def save_data(data_splits: tuple, training_run_dir: str):
+    '''
+    Save the data and labels in the training run directory for sampling reproducibility.
+    
+    Parameters:
+        X_train: np.array - The paths of the training images.
+        X_val: np.array - The paths of the validation images.
+        X_test: np.array - The paths of the test images.
+        y_train: np.array - The labels of the training images.
+        y_val: np.array - The labels of the validation images.
+        y_test: np.array - The labels of the test images.
+        training_run_dir: str - The directory where the training run is stored.
+    '''
+    np.save(os.path.join(training_run_dir, 'X_train.npy'), data_splits[0])
+    np.save(os.path.join(training_run_dir, 'X_val.npy'), data_splits[1])
+    np.save(os.path.join(training_run_dir, 'X_test.npy'), data_splits[2])
+    np.save(os.path.join(training_run_dir, 'y_train.npy'), data_splits[3])
+    np.save(os.path.join(training_run_dir, 'y_val.npy'), data_splits[4])
+    np.save(os.path.join(training_run_dir, 'y_test.npy'), data_splits[5])
+
+# ChatGPT was used to generate these docstring. No need to do redundant work.
+def load_saved_data(training_run_dir):
+    '''
+    Load the data and labels to make reproducibility of sampling.
+    
+    Parameters:
+        training_run_dir: str - The directory where the training run is stored.
+        
+    Returns:
+        X_train: np.array - The paths of the training images.
+        X_val: np.array - The paths of the validation images.
+        X_test: np.array - The paths of the test images.
+        y_train: np.array - The labels of the training images.
+        y_val: np.array - The labels of the validation images.
+        y_test: np.array - The labels of the test images.
+    '''
+    X_train_path = np.load(os.path.join(training_run_dir, 'X_train.npy'))
+    X_val_path = np.load(os.path.join(training_run_dir, 'X_val.npy'))
+    X_test_path = np.load(os.path.join(training_run_dir, 'X_test.npy'))
+    y_train = np.load(os.path.join(training_run_dir, 'y_train.npy'))
+    y_val = np.load(os.path.join(training_run_dir, 'y_val.npy'))
+    y_test = np.load(os.path.join(training_run_dir, 'y_test.npy'))
+    return X_train_path, X_val_path, X_test_path, y_train, y_val, y_test

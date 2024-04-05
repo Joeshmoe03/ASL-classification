@@ -14,3 +14,7 @@
 # Number of GPUs
 #SBATCH --time=02:00:00
 # Adjust time as needed < 24:00:00
+
+# Use a conda environment to manage dependencies. You may find the dependencies in the README.md file.
+conda info --envs
+conda activate ML

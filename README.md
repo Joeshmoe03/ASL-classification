@@ -17,5 +17,16 @@ root_directory
 
 - train.sbatch: batch file for submitting training and other high compute jobs to HPC Slurm scheduler.
 - train.py: a script version that is runnable in our batch file for high performance computer training.
-- exploratory_analysis.ipynb: the working file for all in progress visualizations, initial model testing, etc...
+- exploratory_analysis.ipynb: the working file for all visualizations.
+- model_experimentation.ipynb: working file for testing and making models.
 - util: a directory containing important utility that will be used to efficiently and effectively adapt our code for memory/data management constraints. Will contain useful things like transforms that can be applied to our images, data loaders, etc...
+
+## **External Dependencies**
+
+- comet_ml
+- sklearn
+- tensorflow (preferably gpu compatible version)
+- numpy
+- pandas
+- opencv-python
+- tqdm

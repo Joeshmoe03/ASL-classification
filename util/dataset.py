@@ -55,7 +55,6 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
             X_set: np.array - A numpy array containing the paths of the images and 
             y_set: np.array - their corresponding labels.
             batch_size: int - The size of the batch that we want to load the data in.
-            shuffle: Bool - Whether or not we want to shuffle the data before loading it.
         '''
         self.X_set = X_set
         self.y_set = y_set
@@ -75,11 +74,11 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
         This function loads a batch of data from the dataset.
 
         Parameters:
-            index: int - The index of the batch that we want to load from the dataset.
+            index: int - The index of batch that we want to load from the dataset.
 
         Returns:
             X_batch: np.array - A numpy array containing the images of the batch.
-            y_batch: np.array - A numpy array containing the labels of the batch.
+            y_batch: np.array - A numpy array containing labels of the batch.
         '''
 
         # We specify the start of our batch
@@ -97,8 +96,6 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
         # If no transformation is specified, we simply load the images
         # A transformation is typically something like normalization, resizing, etc.
         X_batch = np.array([cv2.imread(file) for file in X_path_batch])
-
-        # If a transformation is specified, we apply it to the images
         if self.transform is not None:
             X_batch = self.transform(X_batch)
 

@@ -10,14 +10,12 @@ import os
 # efficiently. We can not afford to simply load the entire dataset into memory at once, as it would be too large/expensive.
 # Instead, we will load the data in batches, and apply augmentations to the data as we load it. This will allow us to
 # train our model on the data without stuffing memory completely full.
-
 class ASLDataPaths():
     '''
     fetchASLDataPaths is a class that fetches the paths of the ASL dataset from a directory. The rationale behind such a class
     is the fact that our dataset is huge (relatively speaking), and we can not afford to load the entire dataset of images into memory.
     Rather, it might be a better idea to load the paths of the images, and then load the images in batches as we train our model. 
     '''
-
     def __init__(self, data_dir: str):
 
         # Check if the data directory exists
@@ -81,7 +79,6 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
             X_batch: np.array - A numpy array containing the images of the batch.
             y_batch: np.array - A numpy array containing labels of the batch.
         '''
-
         # We specify the start of our batch
         batch_start = index * self.batch_size
 
@@ -110,65 +107,50 @@ def split_data(X, y, args):
     Parameters:
         X: np.array - The paths of the images.
         y: np.array - The labels of the images.
-        test_size: float - The size of the test set.
-        val_size: float - The size of the validation set.
-        random_state: int - The random state for reproducibility.
+        args: used to pass val_size and test_size splittings. 
         
     Returns:
-        X_train: np.array - The paths of the training images.
-        X_val: np.array - The paths of the validation images.
-        X_test: np.array - The paths of the test images.
-        y_train: np.array - The labels of the training images.
-        y_val: np.array - The labels of the validation images.
-        y_test: np.array - The labels of the test images.
+        data_splits: a tuple of np.arrays - for X train, val, test and y train, val, test.
     '''
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=args.test_siz, random_state=args.seed)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=args.val_siz, random_state=args.seed)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=args.testSize, random_state=args.resample)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=args.valSize, random_state=args.resample)
 
     data_splits = (X_train, X_val, X_test, y_train, y_val, y_test)
     return data_splits
 
 # ChatGPT was used to generate these docstring. No need to do redundant work.
-def save_data(data_splits: tuple, training_run_dir: str):
+def save_data(data_splits: tuple, dir: str):
     '''
     Save the data and labels in the training run directory for sampling reproducibility.
     
     Parameters:
-        X_train: np.array - The paths of the training images.
-        X_val: np.array - The paths of the validation images.
-        X_test: np.array - The paths of the test images.
-        y_train: np.array - The labels of the training images.
-        y_val: np.array - The labels of the validation images.
-        y_test: np.array - The labels of the test images.
-        training_run_dir: str - The directory where the training run is stored.
+        data_splits: tuple - a tuple of train, val, test data, then labels for those sets - in that order. 
+        dir: str - The directory where the training run is stored.
     '''
-    np.save(os.path.join(training_run_dir, 'X_train.npy'), data_splits[0])
-    np.save(os.path.join(training_run_dir, 'X_val.npy'), data_splits[1])
-    np.save(os.path.join(training_run_dir, 'X_test.npy'), data_splits[2])
-    np.save(os.path.join(training_run_dir, 'y_train.npy'), data_splits[3])
-    np.save(os.path.join(training_run_dir, 'y_val.npy'), data_splits[4])
-    np.save(os.path.join(training_run_dir, 'y_test.npy'), data_splits[5])
+    np.save(os.path.join(dir, 'X_train.npy'), data_splits[0])
+    np.save(os.path.join(dir, 'X_val.npy'), data_splits[1])
+    np.save(os.path.join(dir, 'X_test.npy'), data_splits[2])
+    np.save(os.path.join(dir, 'y_train.npy'), data_splits[3])
+    np.save(os.path.join(dir, 'y_val.npy'), data_splits[4])
+    np.save(os.path.join(dir, 'y_test.npy'), data_splits[5])
 
 # ChatGPT was used to generate these docstring. No need to do redundant work.
-def load_saved_data(training_run_dir):
+def load_saved_data(dir):
     '''
     Load the data and labels to make reproducibility of sampling.
     
     Parameters:
-        training_run_dir: str - The directory where the training run is stored.
+        dir: str - The directory where the training run is stored.
         
     Returns:
-        X_train: np.array - The paths of the training images.
-        X_val: np.array - The paths of the validation images.
-        X_test: np.array - The paths of the test images.
-        y_train: np.array - The labels of the training images.
-        y_val: np.array - The labels of the validation images.
-        y_test: np.array - The labels of the test images.
+        data_splits: tuple - a tuple of np.arrays for X train, val, test and y train, val, test.
     '''
-    X_train_path = np.load(os.path.join(training_run_dir, 'X_train.npy'))
-    X_val_path = np.load(os.path.join(training_run_dir, 'X_val.npy'))
-    X_test_path = np.load(os.path.join(training_run_dir, 'X_test.npy'))
-    y_train = np.load(os.path.join(training_run_dir, 'y_train.npy'))
-    y_val = np.load(os.path.join(training_run_dir, 'y_val.npy'))
-    y_test = np.load(os.path.join(training_run_dir, 'y_test.npy'))
-    return X_train_path, X_val_path, X_test_path, y_train, y_val, y_test
+    X_train = np.load(os.path.join(dir, 'X_train.npy'))
+    X_val = np.load(os.path.join(dir, 'X_val.npy'))
+    X_test = np.load(os.path.join(dir, 'X_test.npy'))
+    y_train = np.load(os.path.join(dir, 'y_train.npy'))
+    y_val = np.load(os.path.join(dir, 'y_val.npy'))
+    y_test = np.load(os.path.join(dir, 'y_test.npy'))
+    
+    data_splits = (X_train, X_val, X_test, y_train, y_val, y_test)
+    return data_splits

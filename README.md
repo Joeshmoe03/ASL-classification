@@ -19,7 +19,7 @@ root_directory
 
 - A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM on a HPC.
 - SLURM for managing and scheduling Linux clusters or if running locally have install python and run:
-  python train.py --batchSize 32... other args... (could be python3 or else depending on your version of python)
+  "python train.py --batchSize 32... other args..." (could be python3 or else depending on your version of python instead of "python")
 - Already installed the dependencies listed below.
 - The repo structure as seen below which should have been cloned as such.
 
@@ -64,7 +64,7 @@ root_directory
 
 - comet_ml
 - sklearn
-- tensorflow (preferably gpu compatible version) "pip install tensorflow[and-cuda]"
+- tensorflow (preferably w/ gpu compatibility): "pip install tensorflow[and-cuda]"
 - numpy
 - pandas
 - opencv-python

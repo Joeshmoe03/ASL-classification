@@ -1,9 +1,9 @@
 # Load dependencies
 import tensorflow as tf
-from tensorflow.keras import layers
+from tensorflow.keras import layers # type: ignore
 import os
 import argparse
-from comet_ml import Experiment
+from comet_ml import Experiment # type: ignore
 from util.dataset import ASLDataPaths, ASLBatchLoader, split_data, save_data, load_saved_data
 from util.model import ModelFactory
 from util.directory import initializeDir

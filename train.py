@@ -10,7 +10,9 @@ from util.directory import initializeDir
 from util.transform import grayscale
 from util.trainloop import trainLoop
 
-# Main function entry point for our script
+# TODO: Consider using the Comet ML API to log your experiments.
+# #https://www.comet.com/docs/v2/api-and-sdk/python-sdk/reference/Experiment/#experimentlog_text
+
 def main(args):
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.

@@ -1,71 +1,59 @@
 # Load dependencies
-from tqdm import tqdm
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+from tensorflow.keras import layers
 import os
 import argparse
 from comet_ml import Experiment
 from util.dataset import ASLDataPaths, ASLBatchLoader, split_data, save_data, load_saved_data
-from util.directoryHandler import samplingHandler
-#from util.model import ModelFactory
+from util.model import ModelFactory
+from util.directory import initializeDir
+from util.transform import grayscale
+from util.trainloop import trainLoop
 
 # Main function entry point for our script
 def main(args):
-    # We save training runs and their associated sampling of data in the /temp/ directory under a folder named according to the hyperparameters/sampling.
-    # Example of a valid training run directory: ./temp/VGG_opSGD_lsCategoricalCrossEntropy_lr0.001/
-    training_run_dir = os.path.join(os.getcwd(), 'temp', 'resample' + str(args.resample))
+    # We save training runs and their associated sampling of data in the /temp/ 
+    # directory under a folder named according to the sampling and hyperparameters.
+    scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_op{args.optim}_ls{args.loss}" 
+                                                  + f"_lr{args.lr}_wd{args.wdecay}_mo{args.momentum}" 
+                                                  + f"_rs{args.resample}")
 
-    # We use our samplingHandler() wrapper for managing directories associated with different sampled data. While it would be simple to simply call ASLDataPaths and then ASLBatchLoader,
-    # we want the ability to resample or reuse previously sampled data saved to specific directories. We do this because reproducibility is an important
-    # thing we should care about both from a point of transparency and honesty in recording our results and benchmarking. 
-    # NOTE: data_splits takes on the form a tuple with the following structure: (X_train, X_val, X_test, y_train, y_val, y_test)
-    data_splits = samplingHandler(training_run_dir, args)
+    # Initialize the directory and perform sampling if it does not exist. Otherwise, load the saved data.
+    if initializeDir(scratch_dir):
+        data_paths = ASLDataPaths(args.data_dir).fetch_paths()
+        data_splits = split_data(data_paths, args.valSize, args.testSize, args.resample)
+        save_data(data_splits, scratch_dir)
+    else:
+        data_splits = load_saved_data(scratch_dir)
+
+    # NOTE: FEEL FREE TO MODIFY TRANSFORMATIONS AS NEEDED
+    transform = tf.keras.Sequential([layers.Resizing(64, 64),
+                                    layers.Rescaling(1./255),
+                                    layers.RandomFlip("horizontal"),
+                                    layers.RandomRotation(0.2),
+                                    layers.Lambda(grayscale)])
 
     # Initialize the batch loader
-    X_train_paths, X_val_paths, X_test_paths, y_train, y_val, y_test = data_splits
-    train_loader = ASLBatchLoader(X_train_paths, y_train, args.batchSize)
-    val_loader = ASLBatchLoader(X_val_paths, y_val, args.batchSize)
-    test_loader = ASLBatchLoader(X_test_paths, y_test, args.batchSize)
-    
-    # Transformations for the data
-    # TODO: IMPLEMENT DATA AUGMENTATION/TRANSFORMATIONS
+    train_data, val_data, test_data = data_splits
+    train_loader = ASLBatchLoader(train_data[:, 0], train_data[:, 1], transform=transform, batch_size=args.batchSize)
+    val_loader = ASLBatchLoader(val_data[:, 0], val_data[:, 1], transform=transform, batch_size=args.batchSize)
+    test_loader = ASLBatchLoader(test_data[:, 0], test_data[:, 1], transform=transform, batch_size=args.batchSize)
+    loaders = {'train': train_loader, 'val': val_loader, 'test': test_loader}
 
     # Load the model and pretrained weights if specified
-    #model = ModelFactory(args, args.model, args.pretrain)
+    model = ModelFactory(args, args.model, args.pretrain)
 
-    # Load the optimizer
-    if args.optim == 'SGD':
-        pass #TODO: IMPLEMENT
-    elif args.optim == 'Adam':
-        pass #TODO: IMPLEMENT
-    else:
-        raise ValueError('Optimizer not implemented')
-    
-    # Load the loss function
-    if args.loss == 'CategoricalCrossEntropy':
-        pass #TODO: IMPLEMENT
-        #TODO: transform labels to one-hot encoding
-    elif args.loss == 'SparseCategoricalCrossEntropy':
-        pass #TODO: IMPLEMENT
-        #TODO: transform labels to numerical encoding
-    else:
-        raise ValueError('Loss function not implemented')
-    
-    # TODO: training loop
-        # early stopping too
-    return
+    # Train the model
+    trainLoop(scratch_dir, loaders, model, args)
+    return 0
 
-# Parser for easier running of the script on command line. 
 if __name__ == "__main__":
+    # Parser for easier running of the script on command line. Can specify hyperparameters and model type this way.  
     parser = argparse.ArgumentParser()
-
-    # Hyperparameters
     parser.add_argument('-nepoch'   , type=int  , action="store", dest='epochs'   , default=2000 ) # number of epochs
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
     parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=0) # resample data
-    parser.add_argument('-seed'     , type=int  , action="store", dest='seed'     , default=42) # random seed
     parser.add_argument('-wd'       , type=float, action="store", dest='wdecay'   , default=0) # weight decay
     parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=1.00) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='VGG') # VGG, ResNet, etc...
@@ -75,10 +63,6 @@ if __name__ == "__main__":
     parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1) # test percentage
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2) # validation percentage
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
-    parser.add_argument('-pretrain' , type=bool , action="store", dest='pretrain' , default=False)
-
-    # TODO: Possible arguments to implement in the future:
-    # - data augmentation
-
+    parser.add_argument('-pretrain' , type=bool , action="store", dest='pretrain' , default=False) # use pretrained weights
     args = parser.parse_args()
     main(args)

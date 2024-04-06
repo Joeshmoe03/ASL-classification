@@ -33,9 +33,11 @@ class ASLDataPaths():
                 X_paths.append(os.path.join(root, file))
                 y.append(root.split('/')[-1])
         
+        # Convert the paths and labels to numpy arrays
         X_paths = np.array(X_paths)
         y = np.array(y)
-        return X_paths, y
+        data = np.column_stack((X_paths, y))
+        return data
 
 # The ASLBatchLoader class is a custom data loader following the concept of this documentation code: 
 # https://www.tensorflow.org/api_docs/python/tf/keras/utils/PyDataset. Refer to this documentation for more information
@@ -99,27 +101,36 @@ class ASLBatchLoader(tf.keras.utils.PyDataset):
 
         return X_batch, y_batch
     
+    def __iter__(self):
+        '''
+        This method returns an iterator for the batches.
+        
+        Yields: batch - A batch of data from the dataset.
+        '''
+        for i in range(len(self)):
+            yield self[i]
+    
 # ChatGPT was used to generate these docstring. No need to do redundant work.
-def split_data(X, y, args):
+def split_data(data, test_size=0.2, val_size=0.2, random_state=42):
     '''
     Split the data into training, validation, and test sets.
     
     Parameters:
         X: np.array - The paths of the images.
         y: np.array - The labels of the images.
-        args: used to pass val_size and test_size splittings. 
+        test_size: float - The size of the test set.
+        val_size: float - The size of the validation set.
+        random_state: int - The random state for reproducibility.
         
     Returns:
-        data_splits: a tuple of np.arrays - for X train, val, test and y train, val, test.
+        tuple: a tuple of np.arrays - train_data, val_data, test_data
     '''
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=args.testSize, random_state=args.resample)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=args.valSize, random_state=args.resample)
-
-    data_splits = (X_train, X_val, X_test, y_train, y_val, y_test)
-    return data_splits
+    train_data, test_data = train_test_split(data, test_size=test_size, random_state=random_state)
+    train_data, val_data = train_test_split(train_data, test_size=val_size, random_state=random_state)
+    return (train_data, val_data, test_data)
 
 # ChatGPT was used to generate these docstring. No need to do redundant work.
-def save_data(data_splits: tuple, dir: str):
+def save_data(data_splits: tuple[tuple, tuple, tuple], dir: str):
     '''
     Save the data and labels in the training run directory for sampling reproducibility.
     
@@ -127,15 +138,21 @@ def save_data(data_splits: tuple, dir: str):
         data_splits: tuple - a tuple of train, val, test data, then labels for those sets - in that order. 
         dir: str - The directory where the training run is stored.
     '''
-    np.save(os.path.join(dir, 'X_train.npy'), data_splits[0])
-    np.save(os.path.join(dir, 'X_val.npy'), data_splits[1])
-    np.save(os.path.join(dir, 'X_test.npy'), data_splits[2])
-    np.save(os.path.join(dir, 'y_train.npy'), data_splits[3])
-    np.save(os.path.join(dir, 'y_val.npy'), data_splits[4])
-    np.save(os.path.join(dir, 'y_test.npy'), data_splits[5])
+    # Check if the directory exists
+    if not os.path.exists(dir):
+        raise FileNotFoundError(f"Directory '{dir}' does not exist.")
+    
+    # Check if the data_splits contain 6 arrays
+    if len(data_splits) != 3:
+        raise ValueError("data_splits should contain 6 arrays.")
+
+    # Save the data and labels
+    np.save(os.path.join(dir, 'train_data.npy'), data_splits[0])
+    np.save(os.path.join(dir, 'val_data.npy'), data_splits[1])
+    np.save(os.path.join(dir, 'test_data.npy'), data_splits[2])
 
 # ChatGPT was used to generate these docstring. No need to do redundant work.
-def load_saved_data(dir):
+def load_saved_data(dir: str):
     '''
     Load the data and labels to make reproducibility of sampling.
     
@@ -145,12 +162,17 @@ def load_saved_data(dir):
     Returns:
         data_splits: tuple - a tuple of np.arrays for X train, val, test and y train, val, test.
     '''
-    X_train = np.load(os.path.join(dir, 'X_train.npy'))
-    X_val = np.load(os.path.join(dir, 'X_val.npy'))
-    X_test = np.load(os.path.join(dir, 'X_test.npy'))
-    y_train = np.load(os.path.join(dir, 'y_train.npy'))
-    y_val = np.load(os.path.join(dir, 'y_val.npy'))
-    y_test = np.load(os.path.join(dir, 'y_test.npy'))
+    # Check if the directory exists
+    if not os.path.exists(dir):
+        raise FileNotFoundError(f"Directory '{dir}' does not exist.")
     
-    data_splits = (X_train, X_val, X_test, y_train, y_val, y_test)
-    return data_splits
+    # Check that files exist
+    files = ['train_data', 'val_data', 'test_data']
+    if any (not os.path.exists(os.path.join(dir, f'{file}.npy')) for file in files):
+        raise FileNotFoundError(f"Incomplete directory '{dir}'.")
+
+    # Load the data and labels
+    train_data = np.load(os.path.join(dir, 'train_data.npy'))
+    val_data = np.load(os.path.join(dir, 'val_data.npy'))
+    test_data = np.load(os.path.join(dir, 'test_data.npy'))
+    return (train_data, val_data, test_data)

@@ -18,3 +18,8 @@
 # Use a conda environment to manage dependencies. You may find the dependencies in the README.md file.
 conda info --envs
 conda activate ML
+
+# Run the job: 
+# NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM
+# NOTE: You may change the arguments to the python script as needed
+python train.py --num_epochs 100 --batchSize 32 --lr 0.001

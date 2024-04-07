@@ -16,6 +16,7 @@ root_directory
 ## **Training Instructions**
 
 **Arguments**:
+```
 - Number of epochs:       "--nepoch 3"
 - Batch size:             "--batchSize 32"
 - Learning rate:          "--lr 0.001"
@@ -30,13 +31,15 @@ root_directory
 - Val perc.               "--val 0.2"
 - Data directory          "--data_dir ./some/path/to/data/" (No reason to do this unless you want to recycle or completely modify repo)
 - Pretraining             "--pretrain True" or "--pretrain False" (model weights should be stored under ./model/weights/X.weights.h5 where X is model name like "VGG" or "ResNet", etc...)
+```
 
 **Examples**:
-"python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2"
+
+```python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2```
 
 or (depending on python version)
 
-"python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2"
+```python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2```
 
 **Prerequisites**
 

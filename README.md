@@ -16,7 +16,7 @@ root_directory
 
 ## **Training Instructions**
 
-If you would like, you can modify transforms within the ./train.py file to include new custom or existing tensorflow transforms.
+If you would like, you can modify transforms within the **./train.py** file to include new custom or existing tensorflow transforms.
 
 **Arguments**:
 ```
@@ -78,21 +78,14 @@ root_directory
 
 ## **Repo Structure**
 
-- train.sbatch: batch file for submitting training and other high compute jobs to HPC Slurm scheduler.
-- train.py: a script version that is runnable in our batch file for high performance computer training.
-- exploratory_analysis.ipynb: the working file for all visualizations.
-- model_experimentation.ipynb: working file for testing and making models.
-- util: a directory containing important utility that will be used to efficiently and effectively adapt our code for memory/data management constraints, custom transforms, directory functions, model utilities, the trainloop.
-- model: a directory storing tf models and their weights if interested in pretraining
-- figures: containing visualizations made from notebooks or with comet_ml
+- **train.sbatch**: batch file for submitting training and other high compute jobs to HPC Slurm scheduler.
+- **train.py**: a script version that is runnable in our batch file for high performance computer training.
+- **exploratory_analysis.ipynb**: the working file for all visualizations.
+- **model_experimentation.ipynb**: working file for testing and making models.
+- **util**: a directory containing important utility that will be used to efficiently and effectively adapt our code for memory/data management constraints, custom transforms, directory functions, model utilities, the trainloop.
+- **model**: a directory storing tf models and their weights if interested in pretraining. Weights should be saved to ./model/weights/VGG.weights.h5 and models as ./model/VGG.py for example.
+- **figures**: containing visualizations made from notebooks or with comet_ml
 
 ## **Dependencies**
 
-- comet_ml
-- sklearn
-- tensorflow (preferably w/ gpu compatibility): "pip install tensorflow[and-cuda]"
-- numpy
-- pandas
-- opencv-python
-- tqdm
-- matplotlib
+See requirements.txt. I recommend setting up some kind of environment. Consider [conda](https://docs.conda.io/en/latest/)

@@ -10,7 +10,7 @@ from util.directory import initializeDir
 from util.transform import grayscale
 from util.trainloop import trainLoop
 
-# TODO: Consider using the Comet ML API to log your experiments.
+# TODO: Consider using the Comet ML API to log experiments.
 # #https://www.comet.com/docs/v2/api-and-sdk/python-sdk/reference/Experiment/#experimentlog_text
 
 def main(args):
@@ -55,15 +55,15 @@ if __name__ == "__main__":
     parser.add_argument('-nepoch'   , type=int  , action="store", dest='epochs'   , default=2000 ) # number of epochs
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
-    parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=0) # resample data
-    parser.add_argument('-wd'       , type=float, action="store", dest='wdecay'   , default=0) # weight decay
-    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=1.00) # for SGD
+    parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=0    ) # resample data
+    parser.add_argument('-wd'       , type=float, action="store", dest='wdecay'   , default=0    ) # weight decay
+    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=1.00 ) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='VGG') # VGG, ResNet, etc...
     parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='SGD') # SGD, Adam, etc...
     parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='SparseCategoricalCrossEntropy')
-    parser.add_argument('-stopping' , type=int  , action="store", dest='stopping' , default=-1) # early stopping after n epochs with no improvement in validation loss. -1 for no early stopping.
-    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1) # test percentage
-    parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2) # validation percentage
+    parser.add_argument('-stopping' , type=int  , action="store", dest='stopping' , default=-1   ) # early stopping after n epochs with no improvement in validation loss. -1 for no early stopping.
+    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  ) # test percentage
+    parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
     parser.add_argument('-pretrain' , type=bool , action="store", dest='pretrain' , default=False) # use pretrained weights
     args = parser.parse_args()

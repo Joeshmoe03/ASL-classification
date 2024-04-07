@@ -3,3 +3,4 @@ util/__init__.py
 util/__pycache__/
 temp/
 log/
+train.sbatch

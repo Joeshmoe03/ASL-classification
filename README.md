@@ -5,15 +5,18 @@
 
 ```
 root_directory
-   |- exploratory_analysis.ipynb
+   |- ...
    |- data
       |- asl_alphabet_test
          |- data...
       |- asl_alphabet_train
          |- data...
+   |- ...
 ```
 
 ## **Training Instructions**
+
+If you would like, you can modify transforms within the ./train.py file to include new custom or existing tensorflow transforms.
 
 **Arguments**:
 ```
@@ -43,14 +46,11 @@ or (depending on python version)
 
 **Prerequisites**
 
-- A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM on a HPC.
-- SLURM for managing and scheduling Linux clusters. You will need to adapt the sbatch file to your needs. Or if running locally have installed python and run:
-  "python train.py --batchSize 32... other args..." (could be python3 or else depending on your version of python instead of "python")
+- A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM with HPC resources.
+- [**If running on HPC**]: SLURM for managing and scheduling Linux clusters + Cuda availability with HPC resources. You will need to adapt the .sbatch file to your specific needs. 
 - Already installed the dependencies listed below.
 - The repo structure as seen below which should have been cloned as such.
-
-If you would like, you can modify transforms within the ./train.py file
-
+  
 ```
 root_directory
    |- exploratory_analysis.ipynb

@@ -19,6 +19,7 @@ root_directory
 If you would like, you can modify transforms within the **./train.py** file to include new custom or existing tensorflow transforms.
 
 **Arguments**:
+
 ```
 - Number of epochs:       "--nepoch 3"
 - Batch size:             "--batchSize 32"
@@ -38,19 +39,19 @@ If you would like, you can modify transforms within the **./train.py** file to i
 
 **Examples**:
 
-```python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2```
+`python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
 
 or (depending on python version)
 
-```python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2```
+`python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
 
 **Prerequisites**
 
 - A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM with HPC resources.
-- [**If running on HPC**]: SLURM for managing and scheduling Linux clusters + Cuda availability with HPC resources. You will need to adapt the .sbatch file to your specific needs. 
+- [**If running on HPC**]: SLURM for managing and scheduling Linux clusters + Cuda availability with HPC resources. You will need to adapt the .sbatch file to your specific needs.
 - Already installed the dependencies listed below.
 - The repo structure as seen below which should have been cloned as such.
-  
+
 ```
 root_directory
    |- exploratory_analysis.ipynb
@@ -88,4 +89,4 @@ root_directory
 
 ## **Dependencies**
 
-See requirements.txt. I recommend setting up some kind of environment. Consider [conda](https://docs.conda.io/en/latest/)
+See requirements.txt. I recommend setting up some kind of environment. Consider [conda](https://docs.conda.io/en/latest/).

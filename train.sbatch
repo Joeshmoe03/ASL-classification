@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # slurm template for serial jobs
 # SLURM options set below
-#SBATCH --job-name=ASL_jliem # Job name
+#SBATCH --job-name=ASL_USER # Job name
 #SBATCH --output=log-%j.out
 # Standard output and error log
-#SBATCH --mail-user=jliem@middlebury.edu
+#SBATCH --mail-user=your_email@email.com
 # Where to send email
 #SBATCH --mail-type=FAIL
 #SBATCH --mem=10GB

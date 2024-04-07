@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # slurm template for serial jobs
 # SLURM options set below
-#SBATCH --job-name=ASL_jliem # Job name
+#SBATCH --job-name=ASL_user # Job name
 #SBATCH --output=log-%j.out
 # Standard output and error log
-#SBATCH --mail-user=jliem@middlebury.edu
+#SBATCH --mail-user=email
 # Where to send email
 #SBATCH --mail-type=FAIL
 #SBATCH --mem=10GB
@@ -22,4 +22,4 @@ conda activate ML
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM
 # NOTE: You may change the arguments to the python script as needed
-python train.py --num_epochs 100 --batchSize 32 --lr 0.001
+python train.py --epoch 100 --batchSize 32 --lr 0.001

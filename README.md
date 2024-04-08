@@ -16,9 +16,10 @@ root_directory
    |- ...
 ```
 
-3. Install and activate the environment. **FOR CPU USERS** (YOU SHOULD NOT BE TRAINING _ANYTHING_ like this on CPU - only running the notebooks):
+3. Install and activate the environment.
+   i. **FOR CPU USERS**:
 
-   - `conda env create -f CPUenvironment.yml`
+   - `conda env create -f ./dependencies/CPUenvironment.yml`
    - `conda activate ASLenv`
    - Make sure your Jupyter notebook has the right kernel set with the env.
 
@@ -26,12 +27,25 @@ root_directory
 
    - `conda create --name ASLenv`
    - `conda activate ASLenv`
-   - `pip install -r CPUrequirements.txt`
+   - `pip install -r ./dependencies/CPUrequirements.txt`
+   - Make sure your Jupyter notebook has the right kernel set with the env.
+
+   ii. **FOR GPU USERS** (you will need [compatible Cuda and Python versions](https://www.tensorflow.org/install/source#gpu)):
+
+   - `conda env create -f ./dependencies/GPUenvironment.yml`
+   - `conda activate ASLGPUenv`
+   - Make sure your Jupyter notebook has the right kernel set with the env.
+
+   OR
+
+   - `conda create --name ASLGPUenv`
+   - `conda activate ASLGPUenv`
+   - `pip install -r ./dependencies/GPUrequirements.txt`
    - Make sure your Jupyter notebook has the right kernel set with the env.
 
 ## **Training Instructions**
 
-If you would like, you can modify transforms within the **./train.py** file to include new custom or existing . transforms.
+If you would like, you can modify transforms within the **./train.py** file and **./util/transform.py** to include new custom or existing transforms (see the example grayscale() transform in transform.py and usage in train.py).
 
 **Arguments**:
 
@@ -104,4 +118,5 @@ root_directory
 
 ## **Dependencies**
 
-See requirements.txt. I recommend setting up some kind of environment. Consider [conda](https://docs.conda.io/en/latest/).
+Have installed Python and Conda. For GPU users who plan on training, you will need python version 9 - 11. The latest version of Python does not seem to support tensorflow w/ gpu yet.
+See CPUrequirements.txt and/or CPUenvironment.yml. Consider [conda](https://docs.conda.io/en/latest/).

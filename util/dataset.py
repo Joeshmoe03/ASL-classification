@@ -116,8 +116,7 @@ def split_data(data, test_size=0.2, val_size=0.2, random_state=42):
     Split the data into training, validation, and test sets.
     
     Parameters:
-        X: np.array - The paths of the images.
-        y: np.array - The labels of the images.
+        data: contains X, y as np.array
         test_size: float - The size of the test set.
         val_size: float - The size of the validation set.
         random_state: int - The random state for reproducibility.

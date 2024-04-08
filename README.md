@@ -1,5 +1,7 @@
 ## **Setup Instructions**
 
+**NOTE**: While I would love to provide a docker container, it is impossible to do with a HPC due to security concerns with root priviledge ([read more about it here](https://waterprogramming.wordpress.com/2022/05/25/containerizing-your-code-for-hpc-docker-singularity/)). Instead, you will have to set up your own environment.
+
 1. Clone the repository.
 2. Visit [this Kaggle page](https://www.kaggle.com/datasets/grassknoted/asl-alphabet), download the dataset, and extract the data into a folder you must name /data/. **WARNING**: please ensure that you clear enough space (several GBs). The dataset will be quite large. It should look like this when you are done:
 
@@ -14,9 +16,22 @@ root_directory
    |- ...
 ```
 
+3. Install and activate the environment. **FOR CPU USERS** (YOU SHOULD NOT BE TRAINING _ANYTHING_ like this on CPU - only running the notebooks):
+
+   - `conda env create -f CPUenvironment.yml`
+   - `conda activate ASLenv`
+   - Make sure your Jupyter notebook has the right kernel set with the env.
+
+   OR
+
+   - `conda create --name ASLenv`
+   - `conda activate ASLenv`
+   - `pip install -r requirements.txt`
+   - Make sure your Jupyter notebook has the right kernel set with the env.
+
 ## **Training Instructions**
 
-If you would like, you can modify transforms within the **./train.py** file to include new custom or existing tensorflow transforms.
+If you would like, you can modify transforms within the **./train.py** file to include new custom or existing . transforms.
 
 **Arguments**:
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # slurm template for serial jobs
 # SLURM options set below
-#SBATCH --job-name=ASL_USER # Job name
+#SBATCH --job-name=ASL_jliem # Job name
 #SBATCH --output=log-%j.out
 # Standard output and error log
-#SBATCH --mail-user=your_email@email.com
+#SBATCH --mail-user=jliem@middlebury.edu
 # Where to send email
 #SBATCH --mail-type=FAIL
 #SBATCH --mem=10GB
@@ -16,8 +16,8 @@
 # Adjust time as needed < 24:00:00
 
 # Use a conda environment to manage dependencies. You may find the dependencies in the requirements.txt. Like such:
-# conda info --envs
-# conda activate my_env
+conda info --envs
+conda activate my_env
 
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM

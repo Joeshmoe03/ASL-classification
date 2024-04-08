@@ -26,7 +26,7 @@ root_directory
 
    - `conda create --name ASLenv`
    - `conda activate ASLenv`
-   - `pip install -r requirements.txt`
+   - `pip install -r CPUrequirements.txt`
    - Make sure your Jupyter notebook has the right kernel set with the env.
 
 ## **Training Instructions**

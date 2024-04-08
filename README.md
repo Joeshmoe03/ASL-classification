@@ -33,33 +33,6 @@ root_directory
 
 If you would like, you can modify transforms within the **./train.py** file and **./util/transform.py** to include new custom or existing transforms (see the example grayscale() transform in transform.py and usage in train.py).
 
-**Arguments**:
-
-```
-- Number of epochs:       "--nepoch 3"
-- Batch size:             "--batchSize 32"
-- Learning rate:          "--lr 0.001"
-- Resampling data split:  "--resample 3"
-- Weight decay:           "--wd 0"
-- Momentum:               "--mo 1.00"
-- Model:                  "--model VGG", "--model ResNet" (or any model you implement in ./model/ and incorporate into the ModelFactory class in ./util/model.py)
-- Optimizer:              "--optim Adam", "--optim SGD"
-- Loss function:          "--loss SparseCategoricalCrossEntropy", "--loss CategoricalCrossEntropy", anything you implement...
-- Stopping after no imp.  "--stopping 10"
-- Test perc.              "--test 0.2"
-- Val perc.               "--val 0.2"
-- Data directory          "--data_dir ./some/path/to/data/" (No reason to do this unless you want to recycle or completely modify repo)
-- Pretraining             "--pretrain True" or "--pretrain False" (model weights should be stored under ./model/weights/X.weights.h5 where X is model name like "VGG" or "ResNet", etc...)
-```
-
-**Examples**:
-
-`python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
-
-or (depending on python version)
-
-`python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
-
 **Prerequisites**
 
 - A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM with HPC resources.
@@ -91,6 +64,33 @@ root_directory
       |- asl_alphabet_train
          |- data...
 ```
+
+**Arguments**
+
+```
+- Number of epochs:       "--nepoch 3"
+- Batch size:             "--batchSize 32"
+- Learning rate:          "--lr 0.001"
+- Resampling data split:  "--resample 3"
+- Weight decay:           "--wd 0"
+- Momentum:               "--mo 1.00"
+- Model:                  "--model VGG", "--model ResNet" (or any model you implement in ./model/ and incorporate into the ModelFactory class in ./util/model.py)
+- Optimizer:              "--optim Adam", "--optim SGD"
+- Loss function:          "--loss SparseCategoricalCrossEntropy", "--loss CategoricalCrossEntropy", anything you implement...
+- Stopping after no imp.  "--stopping 10"
+- Test perc.              "--test 0.2"
+- Val perc.               "--val 0.2"
+- Data directory          "--data_dir ./some/path/to/data/" (No reason to do this unless you want to recycle or completely modify repo)
+- Pretraining             "--pretrain True" or "--pretrain False" (model weights should be stored under ./model/weights/X.weights.h5 where X is model name like "VGG" or "ResNet", etc...)
+```
+
+**Examples**:
+
+`python3 ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
+
+or (depending on python version)
+
+`python ./train.py --nepochs 3 --batchSize 32 --lr 0.0001 --resample 3 --wd 0 --mo 0.98 --model ResNet --optim Adam --loss SparseCategoricalEntropy --test 0.2 --val 0.2`
 
 ## **Repo Structure**
 

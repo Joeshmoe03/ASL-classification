@@ -17,6 +17,7 @@ root_directory
 ```
 
 3. Install and activate the environment.
+   
    i. **FOR CPU USERS**:
 
    - `conda env create -f ./dependencies/CPUenvironment.yml`

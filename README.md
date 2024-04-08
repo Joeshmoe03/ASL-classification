@@ -17,23 +17,8 @@ root_directory
 ```
 
 3. Install and activate the environment.
-   
-   i. **FOR CPU USERS**:
 
-   - `conda env create -f ./dependencies/CPUenvironment.yml`
-   - `conda activate ASLenv`
-   - Make sure your Jupyter notebook has the right kernel set with the env.
-
-   OR
-
-   - `conda create --name ASLenv`
-   - `conda activate ASLenv`
-   - `pip install -r ./dependencies/CPUrequirements.txt`
-   - Make sure your Jupyter notebook has the right kernel set with the env.
-
-   ii. **FOR GPU USERS** (you will need [compatible Cuda and Python versions](https://www.tensorflow.org/install/source#gpu)):
-
-   - `conda env create -f ./dependencies/GPUenvironment.yml`
+   - `conda env create -f ./dependencies/environment.yml`
    - `conda activate ASLGPUenv`
    - Make sure your Jupyter notebook has the right kernel set with the env.
 
@@ -41,7 +26,7 @@ root_directory
 
    - `conda create --name ASLGPUenv`
    - `conda activate ASLGPUenv`
-   - `pip install -r ./dependencies/GPUrequirements.txt`
+   - `pip install -r ./dependencies/requirements.txt`
    - Make sure your Jupyter notebook has the right kernel set with the env.
 
 ## **Training Instructions**

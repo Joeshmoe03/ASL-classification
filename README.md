@@ -105,4 +105,4 @@ root_directory
 ## **Dependencies**
 
 Have installed Python and Conda. When attempting to train use a GPU with [compatible Python/Cuda/Tensorflow versions](https://www.tensorflow.org/install/source#gpu).
-See CPUrequirements.txt and/or CPUenvironment.yml. Consider [conda](https://docs.conda.io/en/latest/).
+See ./dependencies/requirements.txt and/or ./dependencies/environment.yml. Consider [conda](https://docs.conda.io/en/latest/).

@@ -55,7 +55,7 @@ def main(args):
     # Supported metrics are precision, recall, average, and macro-averaged f1 score
     metrics = metricFactory(args)
 
-    # Compile the model
+    # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
     model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
 
     # callbacks for saving the model
@@ -74,6 +74,8 @@ def main(args):
 
     # Save the history of the training run
     json.dump(history.history, open(os.path.join(scratch_dir, 'history.json'), 'w'))
+
+    #TODO: IMPLEMENT TESTING
     return
 
 if __name__ == "__main__":

@@ -56,6 +56,7 @@ def lossFactory(args):
         raise NotImplementedError(f'Loss {args.loss} not implemented')
     
 def metricFactory(args):
+    #TODO: EXPAND ON METRICS: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile
     metrics = []
     for metric in args.metric:
         if metric == 'precision':

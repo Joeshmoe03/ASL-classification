@@ -110,3 +110,8 @@ or (depending on python version)
 
 Have installed Python and Conda. When attempting to train use a GPU with [compatible Python/Cuda/Tensorflow versions](https://www.tensorflow.org/install/source#gpu).
 See ./dependencies/requirements.txt and/or ./dependencies/environment.yml. Consider [conda](https://docs.conda.io/en/latest/).
+
+## **TODO**
+
+- Implement support for more metrics
+- Implement testing

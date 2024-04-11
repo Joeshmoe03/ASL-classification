@@ -27,6 +27,7 @@ def trainLoop(dir, loaders, model, args):
         # Because our data is so large, we use batch training.
         with tqdm.tqdm(train_loader, desc=f'Epoch {epoch + 1}/{args.epochs}', unit='batch') as t:
             for batch in train_loader:
+                pass
             
             #TODO: Implement training loop here
             # The training loop should:

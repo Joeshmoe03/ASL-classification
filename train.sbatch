@@ -22,4 +22,4 @@ conda activate ML
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM
 # NOTE: You may change the arguments to the python script as needed
-python train.py --epoch 5 --batchSize 32 --lr 0.001
+python train.py --epoch 1 --batchSize 64 --lr 0.001

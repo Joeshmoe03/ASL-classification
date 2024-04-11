@@ -1,6 +1,6 @@
 import tensorflow as tf
-from model.ResNet import ResNet
-from model.VGG import VGG
+from model.ResNet import ResNet50
+#from model.VGG import VGG
 import os
 
 class ModelFactory():
@@ -9,10 +9,9 @@ class ModelFactory():
     This is because the ASL dataset is a multi-class classification task.
     '''
 
-    def __init__(self, args, model_name: str, pretrain: bool = False):
+    def __init__(self, args, model_name: str):
         self.model_name = model_name
         self.model = None
-        self.pretrain = pretrain
         self._fetch_model(args)
 
     def _fetch_model(self, args):
@@ -21,12 +20,12 @@ class ModelFactory():
         if self.model_name == 'VGG':
             pass #self.model = VGG() #TODO: IMPLEMENT
         elif self.model_name == 'ResNet':
-            self.model = ResNet() #TODO: IMPLEMENT
+            self.model = ResNet50() #TODO: IMPLEMENT OUR OWN RESNET WITH MODIFICATIONS
         else:
             raise NotImplementedError(f'Model {self.model_name} not implemented')
         
         # Load the corresponding weights if specified arg on command-line
-        if self.pretrain: 
+        if args.pretrain is not None: 
             self._load_weights(args)
         return self.model
     
@@ -38,3 +37,21 @@ class ModelFactory():
         
         # Use TF's load_weights method: https://www.tensorflow.org/api_docs/python/tf/keras/Model#load_weights 
         self.model = self.model.load_weights(filepath)
+        return self.model
+    
+def optimizerFactory(args):
+
+    if args.optim == 'SGD':
+        return tf.keras.optimizers.SGD(learning_rate = args.lr, momentum = args.momentum, decay = args.wd)
+    elif args.optim == 'adam':
+        return tf.keras.optimizers.Adam(learning_rate = args.lr)
+    else:
+        raise NotImplementedError(f'Optimizer {args.optim} not implemented')
+    
+def lossFactory(args):
+    if args.loss == 'sparse_categorical_crossentropy':
+        return tf.keras.losses.SparseCategoricalCrossentropy(from_logits = args.from_logits)
+    elif args.loss == 'categorical_crossentropy':
+        return tf.keras.losses.CategoricalCrossentropy(from_logits = args.from_logits)
+    else:
+        raise NotImplementedError(f'Loss {args.loss} not implemented')

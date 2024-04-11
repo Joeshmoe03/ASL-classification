@@ -12,6 +12,7 @@ from util.transform import transformTrainData, transformValData
 experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8", 
                         project_name="asl",
                         workspace="joeshmoe03",
+                        auto_output_logging="default",
                         auto_param_logging = True,
                         auto_metric_logging = True,
                         auto_histogram_weight_logging = True,

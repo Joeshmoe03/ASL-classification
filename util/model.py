@@ -12,15 +12,14 @@ class ModelFactory():
     def __init__(self, args, model_name: str):
         self.model_name = model_name
         self.model = None
-        self._fetch_model(args)
 
-    def _fetch_model(self, args):
+    def fetch_model(self, args, num_classes: int):
 
         # Retrieve the model corresponding to specified arg on command-line
-        if self.model_name == 'VGG':
+        if self.model_name == 'vgg':
             pass #self.model = VGG() #TODO: IMPLEMENT
-        elif self.model_name == 'ResNet':
-            self.model = ResNet50() #TODO: IMPLEMENT OUR OWN RESNET WITH MODIFICATIONS
+        elif self.model_name == 'resnet':
+            self.model = ResNet50(args.img_size, args.color, num_classes) #TODO: IMPLEMENT OUR OWN RESNET WITH MODIFICATIONS
         else:
             raise NotImplementedError(f'Model {self.model_name} not implemented')
         
@@ -41,7 +40,7 @@ class ModelFactory():
     
 def optimizerFactory(args):
 
-    if args.optim == 'SGD':
+    if args.optim == 'sgd':
         return tf.keras.optimizers.SGD(learning_rate = args.lr, momentum = args.momentum, decay = args.wd)
     elif args.optim == 'adam':
         return tf.keras.optimizers.Adam(learning_rate = args.lr)
@@ -55,3 +54,18 @@ def lossFactory(args):
         return tf.keras.losses.CategoricalCrossentropy(from_logits = args.from_logits)
     else:
         raise NotImplementedError(f'Loss {args.loss} not implemented')
+    
+def metricFactory(args):
+    metrics = []
+    for metric in args.metric:
+        if metric == 'precision':
+            metrics.append(tf.keras.metrics.Precision())
+        elif metric == 'recall':
+            metrics.append(tf.keras.metrics.Recall())
+        elif metric == 'f1_score':
+            metrics.append(tf.keras.metrics.F1Score(average = 'macro'))
+        elif metric == 'accuracy':
+            metrics.append(tf.keras.metrics.Accuracy())
+        else:
+            raise ValueError(f"Metric {metric} not supported")
+    return metrics

@@ -72,7 +72,6 @@ def main(args):
     with experiment.train():
         history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
 
-
     # Save the history of the training run
     json.dump(history.history, open(os.path.join(scratch_dir, 'history.json'), 'w'))
     return

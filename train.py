@@ -3,15 +3,11 @@ import tensorflow as tf
 from tensorflow.keras import layers # type: ignore
 import os
 import argparse
-from comet_ml import Experiment # type: ignore
 from util.dataset import ASLDataPaths, ASLBatchLoader, split_data, save_data, load_saved_data
 from util.model import ModelFactory
 from util.directory import initializeDir
 from util.transform import grayscale
-from util.trainloop import trainLoop
-
-# TODO: Consider using the Comet ML API to log experiments.
-# #https://www.comet.com/docs/v2/api-and-sdk/python-sdk/reference/Experiment/#experimentlog_text
+from tensorflow.keras.models import Sequential, Model # type: ignore
 
 def main(args):
     # We save training runs and their associated sampling of data in the /temp/ 
@@ -40,33 +36,62 @@ def main(args):
     train_loader = ASLBatchLoader(train_data[:, 0], train_data[:, 1], transform=transform, batch_size=args.batchSize)
     val_loader = ASLBatchLoader(val_data[:, 0], val_data[:, 1], transform=transform, batch_size=args.batchSize)
     test_loader = ASLBatchLoader(test_data[:, 0], test_data[:, 1], transform=transform, batch_size=args.batchSize)
-    loaders = {'train': train_loader, 'val': val_loader, 'test': test_loader}
 
     # Load the model and pretrained weights if specified
     model = ModelFactory(args, args.model, args.pretrain)
 
     # Train the model
-    trainLoop(scratch_dir, loaders, model, args)
-    return 0
+    model = Model(inputs = model.input, outputs = model.output)
+
+    # Compile the model with the specified optimizer, loss function, and metrics
+    if args.optim == 'SGD':
+        optimizer = args.optim(learning_rate = args.lr, momentum = args.momentum, weight_decay = args.wd)
+    elif args.optim == 'adam':
+        optimizer = args.optim(learning_rate = args.lr)
+    else:
+        raise NotImplementedError(f'Optimizer {args.optim} not implemented')
+    
+    loss = args.loss(from_logits = args.logits)
+
+        #TODO: encode labels as one-hot vectors if optimizer is not SparseCategoricalCrossEntropy
+
+    model.compile(optimizer = optimizer, loss = loss, metrics = args.metric) 
+    
+    # Fit the model with the training data and validate with the validation data
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath = os.path.join(scratch_dir, 'model.h5'), save_best_only = True, verbose = 1)
+    
+    # Early stopping if specified
+    if args.earlyStopping is not None:
+        early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.earlyStopping, verbose=1)
+
+    # Train the model
+    train_history = model.fit(train_loader, validation_data = val_loader, epochs = args.epochs)
+
+    # Evaluate the model with the test data
+    test_history = model.evaluate(test_loader)
+
+    #TODO: log all of this info and visualize it.
+    return
 
 if __name__ == "__main__":
     # Parser for easier running of the script on command line. Can specify hyperparameters and model type this way.  
     parser = argparse.ArgumentParser()
-    parser.add_argument('-nepoch'   , type=int  , action="store", dest='epochs'   , default=2000 ) # number of epochs
+    parser.add_argument('-nepoch'   , type=int  , action="store", dest='epochs'   , default=10   ) # number of epochs
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
     parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=0    ) # resample data
     parser.add_argument('-wd'       , type=float, action="store", dest='wdecay'   , default=0    ) # weight decay
-    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=1.00 ) # for SGD
+    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=0.9  ) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='VGG') # VGG, ResNet, etc...
-    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='SGD') # SGD, Adam, etc...
-    parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='SparseCategoricalCrossEntropy')
-    parser.add_argument('-stopping' , type=int  , action="store", dest='stopping' , default=-1   ) # early stopping after n epochs with no improvement in validation loss. -1 for no early stopping.
+    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='SGD') # SGD, adam, etc...
+    parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='sparse_categorical_crossentropy')
     parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  ) # test percentage
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
+    parser.add_argument('stopping'  , type=int , action="store", dest='earlyStopping', default=None)
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
-    parser.add_argument('-pretrain' , type=bool , action="store", dest='pretrain' , default=False) # use pretrained weights
-    parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=False) # has softmax been applied for probability? If not, then set to True.
+    parser.add_argument('-pretrain' , type=str  , action="store", dest='pretrain' , default=None) # use pretrained weights in specific directory
+    parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=True) # has softmax been applied for probability? If not, then set to True.
     # See source: https://datascience.stackexchange.com/questions/73093/what-does-from-logits-true-do-in-sparsecategoricalcrossentropy-loss-function 
+    parser.add_argument('-metric'   , nargs='+', type=str, action="store", dest='metric', default=['accuracy', 'precision', 'recall', 'f1'])
     args = parser.parse_args()
     main(args)

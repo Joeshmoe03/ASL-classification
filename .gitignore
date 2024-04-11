@@ -3,4 +3,5 @@ util/__init__.py
 util/__pycache__/
 temp/
 log/
+model_experimentation copy.ipynb
 *.sbatch

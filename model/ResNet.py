@@ -1,5 +1,6 @@
-from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import AveragePooling2D, Flatten, Dense, Dropout, Add
+from tensorflow.keras import Input, Model # type: ignore
+from tensorflow.keras.layers import AveragePooling2D, Flatten, Dense, Dropout, Add # type: ignore
+from tensorflow.keras import layers # type: ignore
 
 # References:   https://www.tensorflow.org/guide/keras/sequential_model
 #               https://www.kaggle.com/code/pankaj1234/tensorflow-resnet

@@ -20,6 +20,9 @@ experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8",
                         auto_log_co2=True,)
 
 def main(args):
+    # Check gpu availability
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_op{args.optim}_ls{args.loss}" 

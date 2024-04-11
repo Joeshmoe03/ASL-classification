@@ -16,8 +16,8 @@
 # Adjust time as needed < 24:00:00
 
 # Use a conda environment to manage dependencies. You may find the dependencies in the requirements.txt. Like such:
-conda info --envs
-conda activate ML
+eval "$(conda shell.bash hook)"
+conda activate ASLenv
 
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM

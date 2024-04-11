@@ -22,4 +22,4 @@ conda activate ML
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM
 # NOTE: You may change the arguments to the python script as needed
-python train.py -nepoch 1 -batchSize 64 -lr 0.001 -metric accuracy precision recall f1_score
+python train.py -nepoch 1 -batchSize 64 -lr 0.001 -metric accuracy precision recall f1_score -val 0.2

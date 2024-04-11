@@ -83,7 +83,7 @@ if __name__ == "__main__":
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
     parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=42   ) # resample data
-    parser.add_argument('-wd'       , type=float, action="store", dest='wd'   , default=0    ) # weight decay
+    parser.add_argument('-wd'       , type=float, action="store", dest='wd'   , default=0    ) # weight decay (currently deprecated with tensorflow)
     parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=0.9  ) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='resnet') # VGG, ResNet, etc...
     parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='sgd') # SGD, adam, etc...

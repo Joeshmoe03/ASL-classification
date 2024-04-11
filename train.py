@@ -66,5 +66,7 @@ if __name__ == "__main__":
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
     parser.add_argument('-pretrain' , type=bool , action="store", dest='pretrain' , default=False) # use pretrained weights
+    parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=False) # has softmax been applied for probability? If not, then set to True.
+    # See source: https://datascience.stackexchange.com/questions/73093/what-does-from-logits-true-do-in-sparsecategoricalcrossentropy-loss-function 
     args = parser.parse_args()
     main(args)

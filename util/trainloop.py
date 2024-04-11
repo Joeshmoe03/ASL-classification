@@ -1,4 +1,5 @@
 from util.dataset import ASLDataPaths, ASLBatchLoader, split_data, save_data, load_saved_data
+from util.model import ModelFactory, OptimizerFactory, LossFactory
 import tqdm
 
 def trainLoop(dir, loaders, model, args):
@@ -8,18 +9,25 @@ def trainLoop(dir, loaders, model, args):
     val_loader = loaders['val']
     test_loader = loaders['test']
 
-    # TODO: Initialize the optimizer
-    # TODO: Initialize the loss function
+    # Initialize the optimizer
+    optimizer = OptimizerFactory(args.optimizer, args.lr, args.momentum, args.wdecay)
+
+    # Initialize the loss function
+    loss_fn = LossFactory(args.loss, args)
+
     # TODO: Initialize the learning rate scheduler
     # TODO: Initialize the metrics
+
     # TODO: Initialize the progress bar
 
     # We train for the number of epochs specified in the arguments. An epoch represents a full pass through the training data.
     for epoch in range(args.epochs):
+        epoch_loss = 0.0
         
         # Because our data is so large, we use batch training.
-        for batch in train_loader:
-            pass
+        with tqdm.tqdm(train_loader, desc=f'Epoch {epoch + 1}/{args.epochs}', unit='batch') as t:
+            for batch in train_loader:
+            
             #TODO: Implement training loop here
             # The training loop should:
             # 1. Zero the gradients

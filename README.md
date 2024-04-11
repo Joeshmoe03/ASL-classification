@@ -101,6 +101,7 @@ root_directory
 - **util**: a directory containing important utility that will be used to efficiently and effectively adapt our code for memory/data management constraints, custom transforms, directory functions, model utilities, the trainloop.
 - **model**: a directory storing tf models and their weights if interested in pretraining. Weights should be saved to ./model/weights/VGG.weights.h5 and models as ./model/VGG.py for example.
 - **figures**: containing visualizations made from notebooks or with comet_ml
+- **dependencies**: folder containing requirements.txt or alternatively environment.yml for setting up environment.
 
 ## **Dependencies**
 

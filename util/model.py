@@ -1,6 +1,6 @@
 import tensorflow as tf
 from model.ResNet import ResNet50
-from model.simpleModel import model1
+from model.simpleModel import ConvNet0
 #from model.VGG import VGG
 import os
 
@@ -21,7 +21,7 @@ class ModelFactory():
         elif self.model_name == 'resnet':
             self.model = ResNet50(args.img_size, args.color, num_classes) 
         elif self.model_name == 'simple1':
-            self.model = model1(args.img_size, num_classes)
+            self.model = ConvNet0(args.img_size, num_classes)
         else:
             raise NotImplementedError(f'Model {self.model_name} not implemented')
         

@@ -19,7 +19,7 @@ module load cuda12.2/toolkit/12.2.2
 module load blas/gcc/64/3.10.0
 
 # Use a conda environment to manage dependencies. You may find the dependencies in the requirements.txt. Like such:
-#eval "$(conda shell.bash hook)"
+eval "$(conda shell.bash hook)"
 conda activate ASLenv
 
 # Run the job: 

@@ -23,7 +23,7 @@ If you would like, you can modify transforms within the **./train.py** file and 
 **Prerequisites**
 
 - A decent GPU. For reference, I am training on GPUs that allow as much as 96 GB RAM with HPC resources.
-- [**If running on HPC**]: SLURM for managing and scheduling Linux clusters + Cuda availability with HPC resources. You will need to adapt the .sbatch file to your specific needs.
+- [**If running on HPC**]: SLURM for managing and scheduling Linux clusters + CudaToolKit and cudnn availability with HPC resources. You will need to adapt the .sbatch file to your specific needs.
 - Already installed the dependencies listed below.
 - The repo structure as seen below which should have been cloned as such.
 
@@ -110,12 +110,12 @@ For CPU:
 - opencv-python
 - comet-ml
 
-For GPU:
+For GPU [here is the video that finally got my tensorflow-gpu working](https://www.youtube.com/watch?v=NrJz3ACosJA):
 
-- Python 3.10 specifically in order to be compatible with:
-- tensorflow==2.10 (the last recent version of tensorflow with GPU compatibility for Windows w/o WSL)
+- python v3.10 specifically in order to be compatible with:
+- tensorflow-gpu==2.10 (the last recent version of tensorflow with GPU compatibility for Windows w/o WSL. Download [here](https://pypi.org/project/tensorflow-gpu/2.10.0/#files). You will need to pip install the .whl file.)
 - cudatoolkit==11.2.2 (install with pip and have cudatoolkit installed with driver > 5xx)
-- cudnn==8.1.0 (with cudnn installed as well, and configured with cudatoolkit)
+- cudnn==8.1.0 (with cudnn installed as well, and configured within cudatoolkit directory)
 - comet-ml
 - scikit-learn
 - numpy

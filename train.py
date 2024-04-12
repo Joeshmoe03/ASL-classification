@@ -22,7 +22,7 @@ experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8",
 
 def main(args):
     # Check gpu availability
-    print(tf.config.experimental.list_physical_devices('GPU'))
+    print(tf.config.list_physical_devices('GPU'))
 
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
@@ -50,36 +50,37 @@ def main(args):
     # Apply transformations to the data
     train_dataset = train_dataset.map(transformTrainData)
     val_dataset = val_dataset.map(transformValData)
-
-    # Load the model and optimizer and loss functions
-    model = ModelFactory(args, args.model).fetch_model(args, num_classes=29)
-    optimizer = optimizerFactory(args)
-    loss = lossFactory(args)
-
-    # Supported metrics are precision, recall, average, and macro-averaged f1 score
-    metrics = metricFactory(args)
-
-    # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
-    model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
-
-    # callbacks for saving the model
-    checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.keras')
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpointpath, monitor = 'val_loss', verbose = 1, save_best_only = True)
-    callbacks = [checkpoint]
-
-    # early stopping can be added if specified to the command line to prevent overfitting (callbacks)
-    if args.earlyStopping is not None:
-        earlyStop = tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', patience = args.earlyStopping)
-        callbacks.append(earlyStop)
     
-    # Train the model and output history to comet
-    with experiment.train():
-        history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
+    with tf.device('/device:gpu:0'): #TODO: TESTING
+        # Load the model and optimizer and loss functions
+        model = ModelFactory(args, args.model).fetch_model(args, num_classes=29)
+        optimizer = optimizerFactory(args)
+        loss = lossFactory(args)
 
-    # Save the history of the training run
-    json.dump(history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w'))
+        # Supported metrics are precision, recall, average, and macro-averaged f1 score
+        metrics = metricFactory(args)
 
-    #TODO: IMPLEMENT TESTING
+        # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
+        model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
+
+        # callbacks for saving the model
+        checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.keras')
+        checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpointpath, monitor = 'val_loss', verbose = 1, save_best_only = True)
+        callbacks = [checkpoint]
+
+        # early stopping can be added if specified to the command line to prevent overfitting (callbacks)
+        if args.earlyStopping is not None:
+            earlyStop = tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', patience = args.earlyStopping)
+            callbacks.append(earlyStop)
+        
+        # Train the model and output history to comet
+        with experiment.train():
+            history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
+
+        # Save the history of the training run
+        json.dump(history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w'))
+
+        #TODO: IMPLEMENT TESTING
     return
 
 if __name__ == "__main__":

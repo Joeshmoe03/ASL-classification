@@ -12,6 +12,10 @@ def transformTrainData(image, label):
     image = tf.image.rot90(image, k = random.randint(0, 3))
     image = tf.image.random_flip_left_right(image)
     image = tf.image.random_flip_up_down(image)
+    #image = tf.image.random_brightness(image, max_delta = 0.1)
+    #image = tf.image.random_contrast(image, lower = 0.9, upper = 1.1)
+    #image = tf.image.random_hue(image, max_delta = 0.1)
+    #image = tf.image.random_saturation(image, lower = 0.9, upper = 1.1)
     return image, label
 
 def transformValData(image, label):

@@ -25,4 +25,4 @@ conda activate ASLenv
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM
 # NOTE: You may change the arguments to the python script as needed
-python train.py -nepoch 10 -batchSize 64 -lr 0.001 -metric accuracy -val 0.2 -data_dir ./data/asl_alphabet_train/asl_alphabet_train/
+python train.py -nepoch 10 -batchSize 32 -lr 0.0001 -metric accuracy -val 0.2 -data_dir ./data/asl_alphabet_train/asl_alphabet_train/ -img_size 64

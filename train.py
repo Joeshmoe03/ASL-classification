@@ -26,9 +26,9 @@ def main(args):
 
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
-    scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_op{args.optim}_ls{args.loss}" 
+    scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_{args.optim}_{args.loss}" 
                                                   + f"_lr{args.lr}_mo{args.momentum}" 
-                                                  + f"_rs{args.resample}")
+                                                  + f"_rs{args.resample}" + f"{args.img_size}")
     
     # Create the directory if it does not exist
     if not os.path.exists(scratch_dir):
@@ -64,8 +64,8 @@ def main(args):
         model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
 
         # callbacks for saving the model
-        checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.keras')
-        checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpointpath, monitor = 'val_loss', verbose = 1, save_best_only = True)
+        checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.ckpt')
+        checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpointpath, monitor = 'val_loss', verbose = 1, save_best_only = True, save_weights_only=True)
         callbacks = [checkpoint]
 
         # early stopping can be added if specified to the command line to prevent overfitting (callbacks)
@@ -93,12 +93,12 @@ if __name__ == "__main__":
     parser.add_argument('-wd'       , type=float, action="store", dest='wd'   , default=0    ) # weight decay (currently deprecated with tensorflow)
     parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=0.9  ) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='resnet') # VGG, ResNet, etc...
-    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='sgd') # SGD, adam, etc...
+    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='adam') # SGD, adam, etc...
     parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='categorical_crossentropy')
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
-    parser.add_argument('-stopping'  , type=int , action="store", dest='earlyStopping', default=5)
+    parser.add_argument('-stopping' , type=int , action="store", dest='earlyStopping', default=3 )
     parser.add_argument('-color'    , type=str  , action="store", dest='color'    , default='rgb') # rgb, grayscale 
-    parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=224  ) # image size
+    parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=64   ) # image size
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
     parser.add_argument('-pretrain' , type=str  , action="store", dest='pretrain' , default=None) # use pretrained weights in specific directory
     parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=False) # has softmax been applied for probability? If not, then set to True.

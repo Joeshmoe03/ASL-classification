@@ -1,5 +1,6 @@
 import tensorflow as tf
 from model.ResNet import ResNet50
+from model.simpleModel import model1
 #from model.VGG import VGG
 import os
 
@@ -8,7 +9,6 @@ class ModelFactory():
     Note that none of our classes, ModelFactory, OptimizerFactory, or LossFactory, are setup for regression tasks. 
     This is because the ASL dataset is a multi-class classification task.
     '''
-
     def __init__(self, args, model_name: str):
         self.model_name = model_name
         self.model = None
@@ -19,7 +19,9 @@ class ModelFactory():
         if self.model_name == 'vgg':
             pass #self.model = VGG() #TODO: IMPLEMENT
         elif self.model_name == 'resnet':
-            self.model = ResNet50(args.img_size, args.color, num_classes) #TODO: IMPLEMENT OUR OWN RESNET WITH MODIFICATIONS
+            self.model = ResNet50(args.img_size, args.color, num_classes) 
+        elif self.model_name == 'simple1':
+            self.model = model1(args.img_size, num_classes)
         else:
             raise NotImplementedError(f'Model {self.model_name} not implemented')
         
@@ -30,7 +32,7 @@ class ModelFactory():
     
     def _load_weights(self, args):
         # Retrieve the model weights from the specified directory.
-        filepath = os.path.join(os.getcwd, args.pretrain, f'{str(self.model_name)}.weights.h5')
+        filepath = os.path.join(os.getcwd(), args.pretrain)
         if not os.path.exists(filepath):
             raise ValueError('Could not find model weights to load')
         
@@ -39,7 +41,9 @@ class ModelFactory():
         return self.model
     
 def optimizerFactory(args):
-
+    '''
+    Choose the optimizer based on the command-line arguments.
+    '''
     if args.optim == 'sgd':
         return tf.keras.optimizers.SGD(learning_rate = args.lr, momentum = args.momentum, decay = args.wd)
     elif args.optim == 'adam':
@@ -48,6 +52,9 @@ def optimizerFactory(args):
         raise NotImplementedError(f'Optimizer {args.optim} not implemented')
     
 def lossFactory(args):
+    '''
+    Choose the loss function based on the command-line arguments.
+    '''
     if args.loss == 'sparse_categorical_crossentropy':
         return tf.keras.losses.SparseCategoricalCrossentropy(from_logits = args.from_logits)
     elif args.loss == 'categorical_crossentropy':
@@ -56,6 +63,9 @@ def lossFactory(args):
         raise NotImplementedError(f'Loss {args.loss} not implemented')
     
 def metricFactory(args):
+    '''
+    Choose the metrics based on the command-line arguments.
+    '''
     #TODO: EXPAND ON METRICS: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile
     metrics = []
     for metric in args.metric:

@@ -16,19 +16,6 @@ root_directory
    |- ...
 ```
 
-3. Install and activate the environment.
-
-   - `conda env create -f ./dependencies/environment.yml`
-   - `conda activate ASLenv`
-   - Make sure your Jupyter notebook has the right kernel set with the env.
-
-   OR
-
-   - `conda create --name ASLenv`
-   - `conda activate ASLenv`
-   - `pip install -r ./dependencies/requirements.txt`
-   - Make sure your Jupyter notebook has the right kernel set with the env.
-
 ## **Training Instructions**
 
 If you would like, you can modify transforms within the **./train.py** file and **./util/transform.py** to include new custom or existing transforms (see the example grayscale() transform in transform.py and usage in train.py).
@@ -108,8 +95,35 @@ or (depending on python version)
 
 ## **Dependencies**
 
-Have installed Python and Conda. When attempting to train use a GPU with [compatible Python/Cuda/Tensorflow versions](https://www.tensorflow.org/install/source#gpu).
-See ./dependencies/requirements.txt and/or ./dependencies/environment.yml. Consider [conda](https://docs.conda.io/en/latest/).
+Have installed Python and Conda. Consider making an env in [conda](https://docs.conda.io/en/latest/).
+
+For CPU:
+
+- A working version of python compatible with the following:
+- scikit-learn
+- numpy
+- pandas
+- tensorflow
+- matplotlib
+- argparse
+- tqdm
+- opencv-python
+- comet-ml
+
+For GPU:
+
+- Python 3.10 specifically in order to be compatible with:
+- tensorflow==2.10 (the last recent version of tensorflow with GPU compatibility for Windows w/o WSL)
+- cudatoolkit==11.2.2 (install with pip and have cudatoolkit installed with driver > 5xx)
+- cudnn==8.1.0 (with cudnn installed as well, and configured with cudatoolkit)
+- comet-ml
+- scikit-learn
+- numpy
+- pandas
+- tqdm
+- opencv-python
+- argparse
+- matplotlib
 
 ## **TODO**
 

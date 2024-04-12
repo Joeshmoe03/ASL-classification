@@ -15,6 +15,8 @@
 #SBATCH --time=02:00:00
 # Adjust time as needed < 24:00:00
 
+module load cuda11.1/toolkit/11.1.1
+
 # Use a conda environment to manage dependencies. You may find the dependencies in the requirements.txt. Like such:
 eval "$(conda shell.bash hook)"
 conda activate ASLenv

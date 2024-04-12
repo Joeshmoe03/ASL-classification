@@ -22,7 +22,7 @@ experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8",
 
 def main(args):
     # Check gpu availability
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+    print(tf.config.experimental.list_physical_devices('GPU'))
 
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
@@ -77,7 +77,7 @@ def main(args):
         history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
 
     # Save the history of the training run
-    json.dump(history.history, open(os.path.join(scratch_dir, 'history.json'), 'w'))
+    json.dump(history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w'))
 
     #TODO: IMPLEMENT TESTING
     return

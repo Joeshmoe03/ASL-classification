@@ -1,13 +1,12 @@
 # Load dependencies
 from comet_ml import Experiment
+from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
 import tensorflow as tf
 import os
 import argparse
 import json
-from keras.models import Sequential, Model # type: ignore
 from util.model import ModelFactory, optimizerFactory, lossFactory, metricFactory
-from util.transform import transformTrainData, transformValData
-
+from util.transform import transformTrainData, transformValTestData
 # Initialize Comet experiment
 experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8", 
                         project_name="asl",
@@ -18,9 +17,15 @@ experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8",
                         auto_log_co2=True,)
 
 def main(args):
-    # Check gpu availability
-    print(tf.config.list_physical_devices('GPU'))
+    '''
+    Main function for training the model. This is the entry point for the script. 
+    We load the data, create the model, compile the model, and train the model.
+    The model is saved in the /temp/ directory under a folder named according to 
+    the sampling and hyperparameters.
 
+    Args:
+        args: command-line arguments. These are the hyperparameters for the model/model.
+    '''
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_{args.optim}_{args.loss}" 
@@ -32,52 +37,55 @@ def main(args):
         os.makedirs(scratch_dir)
 
     # Load the data into a tf.data.Dataset
-    train_dataset, val_dataset = tf.keras.utils.image_dataset_from_directory(args.data_dir, 
-                                                                            labels = 'inferred', 
-                                                                            # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
-                                                                            label_mode = 'int' if args.loss == 'sparse_categorical_crossentropy' else 'categorical', 
-                                                                            color_mode = args.color, 
-                                                                            batch_size = args.batchSize, 
-                                                                            image_size = (args.img_size, args.img_size), 
-                                                                            shuffle = True, 
-                                                                            seed = args.resample, 
-                                                                            validation_split = args.valSize, 
-                                                                            subset = "both")
+    train_dataset = image_dataset_from_directory(args.data_dir, 
+                                                labels = 'inferred', 
+                                                # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
+                                                label_mode = 'int' if args.loss == 'sparse_categorical_crossentropy' else 'categorical', 
+                                                color_mode = args.color, 
+                                                batch_size = args.batchSize, 
+                                                image_size = (args.img_size, args.img_size), 
+                                                shuffle = True, 
+                                                seed = args.resample)
+    
+    # Split the data into training, validation, and testing sets
+    test_dataset = train_dataset.take(args.testSize)
+    train_dataset = train_dataset.skip(args.testSize)
+    val_dataset = train_dataset.take(args.valSize)
+    train_dataset = train_dataset.skip(args.valSize)
     
     # Apply transformations to the data
     train_dataset = train_dataset.map(transformTrainData)
-    val_dataset = val_dataset.map(transformValData)
+    val_dataset = val_dataset.map(transformValTestData)
+    test_dataset = test_dataset.map(transformValTestData)
     
-    with tf.device('/device:gpu:0'): #TODO: TESTING
+    with tf.device('/device:gpu:0'):
         # Load the model and optimizer and loss functions
+        # Supported metrics are precision, recall, average, and macro-averaged f1 score
+        # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
         model = ModelFactory(args, args.model).fetch_model(args, num_classes=29)
         optimizer = optimizerFactory(args)
         loss = lossFactory(args)
-
-        # Supported metrics are precision, recall, average, and macro-averaged f1 score
         metrics = metricFactory(args)
-
-        # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
         model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
 
         # callbacks for saving the model
-        checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.ckpt')
+        # early stopping can be added if specified to the command line to prevent overfitting (callbacks)
+        checkpointpath = os.path.join(scratch_dir, f'{str(args.model)}.h5')
         checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpointpath, monitor = 'val_loss', verbose = 1, save_best_only = True, save_weights_only=True)
         callbacks = [checkpoint]
-
-        # early stopping can be added if specified to the command line to prevent overfitting (callbacks)
         if args.earlyStopping is not None:
             earlyStop = tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', patience = args.earlyStopping)
             callbacks.append(earlyStop)
         
-        # Train the model and output history to comet
         with experiment.train():
-            history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
+            train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
 
-        # Save the history of the training run
-        json.dump(history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w'))
-
-        #TODO: IMPLEMENT TESTING
+        with experiment.test():
+            test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
+        
+        # Save the history of the training run and testing run.
+        json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w')) 
+        json.dump(test_history.history, open(os.path.join(scratch_dir, 'testhistory.json'), 'w'))
     return
 
 if __name__ == "__main__":
@@ -87,12 +95,13 @@ if __name__ == "__main__":
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
     parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=42   ) # resample data
-    parser.add_argument('-wd'       , type=float, action="store", dest='wd'   , default=0    ) # weight decay (currently deprecated with tensorflow)
+    parser.add_argument('-wd'       , type=float, action="store", dest='wd'   , default=None    ) # weight decay (currently deprecated with tensorflow)
     parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=0.9  ) # for SGD
     parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='resnet') # VGG, ResNet, etc...
     parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='adam') # SGD, adam, etc...
     parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='categorical_crossentropy')
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
+    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.2  )
     parser.add_argument('-stopping' , type=int , action="store", dest='earlyStopping', default=3 )
     parser.add_argument('-color'    , type=str  , action="store", dest='color'    , default='rgb') # rgb, grayscale 
     parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=64   ) # image size

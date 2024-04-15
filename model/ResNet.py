@@ -15,8 +15,3 @@ def ResNet50(img_size: int, color: str, num_classes: int):
     output = tf.keras.layers.Dense(num_classes, activation='softmax')(x)  
     resnet = tf.keras.Model(inputs=base_model.input, outputs=output)
     return resnet
-
-def ResNet18(img_size: int, color: str, num_classes: int):
-    # Load the pre-trained ResNet50 model
-    pass
-    return

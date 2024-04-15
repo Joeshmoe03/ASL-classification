@@ -14,7 +14,7 @@ def transformTrainData(image, label):
     image = tf.image.random_flip_up_down(image)
     return image, label
 
-def transformValData(image, label):
+def transformValTestData(image, label):
     '''
     See the documentation for tf.image for more information on the transformations:
     https://www.tensorflow.org/api_docs/python/tf/image

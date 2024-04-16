@@ -107,6 +107,7 @@ root_directory
 - **model**: a directory storing tf models and their weights if interested in pretraining. Weights should be saved to ./model/weights/VGG.weights.h5 and models as ./model/VGG.py for example.
 - **figures**: containing visualizations made from notebooks or with comet_ml
 - **dependencies**: folder containing requirements.txt for setting up environment.
+- **temp**: all saved models and their associated tracked metric performances
 
 ## **Dependencies**
 

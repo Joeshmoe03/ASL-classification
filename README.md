@@ -128,4 +128,3 @@ For GPU [here is the video that finally got my tensorflow-gpu working](https://w
 ## **TODO**
 
 - Implement support for more metrics
-- Implement testing

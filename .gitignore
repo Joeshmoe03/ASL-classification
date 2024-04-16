@@ -7,3 +7,4 @@ model/__init__.py
 model/__pycache__/
 model_experimentation copy.ipynb
 *.sbatch
+model/__pycache__/

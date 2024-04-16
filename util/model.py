@@ -49,9 +49,12 @@ def optimizerFactory(args):
     Choose the optimizer based on the command-line arguments.
     '''
     if args.optim == 'sgd':
-        return tf.keras.optimizers.SGD(learning_rate = args.lr, momentum = args.momentum, decay = args.wd)
+        return tf.keras.optimizers.SGD(learning_rate = args.lr, momentum = args.momentum, nesterov = args.nesterov)
     elif args.optim == 'adam':
-        return tf.keras.optimizers.Adam(learning_rate = args.lr)
+        # Here is why Adam does not have "momentum" as an argument: https://stackoverflow.com/questions/47168616/is-there-a-momentum-option-for-adam-optimizer-in-keras
+        return tf.keras.optimizers.Adam(learning_rate = args.lr, beta_1=args.beta1, beta_2=args.beta2, epsilon=args.epsilon)
+    elif args.optim == 'rmsprop':
+        return tf.keras.optimizers.RMSprop(learning_rate = args.lr, momentum = args.momentum)
     else:
         raise NotImplementedError(f'Optimizer {args.optim} not implemented')
     
@@ -65,22 +68,4 @@ def lossFactory(args):
         return tf.keras.losses.CategoricalCrossentropy(from_logits = args.from_logits)
     else:
         raise NotImplementedError(f'Loss {args.loss} not implemented')
-    
-def metricFactory(args):
-    '''
-    Choose the metrics based on the command-line arguments.
-    '''
-    #TODO: EXPAND ON METRICS: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile
-    metrics = []
-    for metric in args.metric:
-        if metric == 'precision':
-            metrics.append(tf.keras.metrics.Precision())
-        elif metric == 'recall':
-            metrics.append(tf.keras.metrics.Recall())
-        elif metric == 'f1_score':
-            metrics.append(tf.keras.metrics.F1Score(average = 'macro'))
-        elif metric == 'accuracy':
-            metrics.append(tf.keras.metrics.Accuracy())
-        else:
-            raise ValueError(f"Metric {metric} not supported")
-    return metrics
+

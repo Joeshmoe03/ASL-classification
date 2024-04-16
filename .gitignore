@@ -1,7 +1,6 @@
 data/
 util/__init__.py
 util/__pycache__/
-temp/
 log/
 model/__init__.py
 model/__pycache__/

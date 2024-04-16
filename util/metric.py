@@ -13,6 +13,7 @@ def metricFactory(args, num_classes):
         elif metric == 'recall':
             metrics.append(tf.keras.metrics.Recall())
         elif metric == 'f1_score':
+            # We use macro average. Rationale: 
             metrics.append(F1Score(num_classes = num_classes, average='macro'))
         elif metric == 'accuracy':
             # Internally tf knows to default to sparse-categorical-accuracy or categorical-accuracy depending on context of loss function and label encoding.

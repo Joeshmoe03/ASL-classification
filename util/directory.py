@@ -1,7 +1,5 @@
 import os
-import argparse
 import tensorflow as tf
-import comet_ml
 
 def initScratchDir(args):
     '''

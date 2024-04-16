@@ -11,14 +11,16 @@ from util.metric import metricFactory
 from util.transform import transformTrainData, transformValTestData
 from util.directory import initScratchDir, checkpointProgress
 
+# Setting keys for privacy: https://networkdirection.net/python/resources/env-variable/
+API_KEY = os.environ.get('COMET_API_KEY')
+
 # Initialize Comet experiment
-experiment = Experiment(api_key="Fl7YrvyVQDhLRYuyUfdHS3oE8", 
+experiment = Experiment(api_key=API_KEY, 
                         project_name="asl",
                         workspace="joeshmoe03",
                         auto_output_logging="default",
                         auto_param_logging = True,
-                        auto_metric_logging = True,
-                        auto_log_co2=True,)
+                        auto_metric_logging = True)
 
 def main(args):
     '''

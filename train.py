@@ -48,6 +48,7 @@ def main(args):
                                                 seed = args.resample)
     
     # Split the data into training, validation, and testing sets
+    # From: https://stackoverflow.com/questions/48213766/split-a-dataset-created-by-tensorflow-dataset-api-in-to-train-and-test 
     test_dataset = train_dataset.take(math.floor(args.testSize * len(train_dataset)))
     train_dataset = train_dataset.skip(math.floor(args.testSize * len(train_dataset)))
     val_dataset = train_dataset.take(math.floor(args.valSize * len(train_dataset)))

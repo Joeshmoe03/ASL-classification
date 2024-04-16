@@ -1,7 +1,9 @@
 data/
 util/__init__.py
 util/__pycache__/
-temp/
 log/
+model/__init__.py
+model/__pycache__/
 model_experimentation copy.ipynb
 *.sbatch
+model/__pycache__/

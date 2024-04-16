@@ -1,0 +1,25 @@
+# parsing of arguments on command line for python
+argparse==1.4.0
+
+# tracking training progress
+comet-ml==3.40.0
+
+# visualizations
+matplotlib==3.5.0
+
+numpy==1.26.4
+
+# working with images
+opencv-python==5.5.0
+
+# maybe not needed?
+pandas==2.2.2
+
+# ML
+scikit-learn==1.4.2
+
+# tensorflow 2.10.0 does not support F1Score
+tensorflow-addons==0.22.0
+
+# Informative progress bars
+tqdm==4.66.2

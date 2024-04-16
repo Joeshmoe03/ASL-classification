@@ -1,97 +1,111 @@
 # Load dependencies
+from comet_ml import Experiment
+import math
+from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
 import tensorflow as tf
-from tensorflow.keras import layers # type: ignore
 import os
 import argparse
-from util.dataset import ASLDataPaths, ASLBatchLoader, split_data, save_data, load_saved_data
-from util.model import ModelFactory
-from util.directory import initializeDir
-from util.transform import grayscale
-from tensorflow.keras.models import Sequential, Model # type: ignore
+import json
+from util.model import ModelFactory, optimizerFactory, lossFactory
+from util.metric import metricFactory
+from util.transform import transformTrainData, transformValTestData
+from util.directory import initScratchDir, checkpointProgress
+
+# Setting keys for privacy: https://networkdirection.net/python/resources/env-variable/
+API_KEY = os.environ.get('COMET_API_KEY')
+
+# Initialize Comet experiment
+experiment = Experiment(api_key=API_KEY, 
+                        project_name="asl",
+                        workspace="joeshmoe03",
+                        auto_output_logging="default",
+                        auto_param_logging = True,
+                        auto_metric_logging = True)
 
 def main(args):
+    '''
+    Main function for training the model. This is the entry point for the script. 
+    We load the data, create the model, compile the model, and train the model.
+    The model is saved in the /temp/ directory under a folder named according to 
+    the sampling and hyperparameters.
+
+    Args:
+        args: command-line arguments. These are the hyperparameters for the model/model.
+    '''
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
-    scratch_dir = os.path.join(os.getcwd(), 'temp', f"{args.model}_op{args.optim}_ls{args.loss}" 
-                                                  + f"_lr{args.lr}_wd{args.wdecay}_mo{args.momentum}" 
-                                                  + f"_rs{args.resample}")
+    scratch_dir = initScratchDir(args)
 
-    # Initialize the directory and perform sampling if it does not exist. Otherwise, load the saved data.
-    if initializeDir(scratch_dir):
-        data_paths = ASLDataPaths(args.data_dir).fetch_paths()
-        data_splits = split_data(data_paths, args.valSize, args.testSize, args.resample)
-        save_data(data_splits, scratch_dir)
-    else:
-        data_splits = load_saved_data(scratch_dir)
-
-    # NOTE: FEEL FREE TO MODIFY TRANSFORMATIONS AS NEEDED
-    transform = tf.keras.Sequential([layers.Resizing(64, 64),
-                                    layers.Rescaling(1./255),
-                                    layers.RandomFlip("horizontal"),
-                                    layers.RandomRotation(0.2),
-                                    layers.Lambda(grayscale)])
-
-    # Initialize the batch loader
-    train_data, val_data, test_data = data_splits
-    train_loader = ASLBatchLoader(train_data[:, 0], train_data[:, 1], transform=transform, batch_size=args.batchSize)
-    val_loader = ASLBatchLoader(val_data[:, 0], val_data[:, 1], transform=transform, batch_size=args.batchSize)
-    test_loader = ASLBatchLoader(test_data[:, 0], test_data[:, 1], transform=transform, batch_size=args.batchSize)
-
-    # Load the model and pretrained weights if specified
-    model = ModelFactory(args, args.model, args.pretrain)
-
-    # Train the model
-    model = Model(inputs = model.input, outputs = model.output)
-
-    # Compile the model with the specified optimizer, loss function, and metrics
-    if args.optim == 'SGD':
-        optimizer = args.optim(learning_rate = args.lr, momentum = args.momentum, weight_decay = args.wd)
-    elif args.optim == 'adam':
-        optimizer = args.optim(learning_rate = args.lr)
-    else:
-        raise NotImplementedError(f'Optimizer {args.optim} not implemented')
+    # Load the data into a tf.data.Dataset
+    train_dataset = image_dataset_from_directory(args.data_dir, 
+                                                labels = 'inferred', 
+                                                # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
+                                                label_mode = 'int' if args.loss == 'sparse_categorical_crossentropy' else 'categorical', 
+                                                color_mode = args.color, 
+                                                batch_size = args.batchSize, 
+                                                image_size = (args.img_size, args.img_size), 
+                                                shuffle = True, 
+                                                seed = args.resample)
     
-    loss = args.loss(from_logits = args.logits)
-
-        #TODO: encode labels as one-hot vectors if optimizer is not SparseCategoricalCrossEntropy
-
-    model.compile(optimizer = optimizer, loss = loss, metrics = args.metric) 
+    # Split the data into training, validation, and testing sets
+    test_dataset = train_dataset.take(math.floor(args.testSize * len(train_dataset)))
+    train_dataset = train_dataset.skip(math.floor(args.testSize * len(train_dataset)))
+    val_dataset = train_dataset.take(math.floor(args.valSize * len(train_dataset)))
+    train_dataset = train_dataset.skip(math.floor(args.valSize * len(train_dataset)))
     
-    # Fit the model with the training data and validate with the validation data
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath = os.path.join(scratch_dir, 'model.h5'), save_best_only = True, verbose = 1)
+    # Apply transformations to the data
+    train_dataset = train_dataset.map(transformTrainData)
+    val_dataset = val_dataset.map(transformValTestData)
+    test_dataset = test_dataset.map(transformValTestData)
     
-    # Early stopping if specified
-    if args.earlyStopping is not None:
-        early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.earlyStopping, verbose=1)
+    with tf.device('/device:gpu:0'):
+        # Load the model and optimizer and loss functions
+        model = ModelFactory(args, args.model).fetch_model(args, num_classes=29)
+        # Supported optimizers are SGD and Adam
+        optimizer = optimizerFactory(args)
+        # Supported loss functions are categorical_crossentropy and sparse_categorical_crossentropy
+        loss = lossFactory(args)
+        # Supported metrics are precision, recall, average, and macro-averaged f1 score
+        metrics = metricFactory(args, num_classes = 29)
+        # Compile the model: https://stackoverflow.com/questions/59353009/list-of-metrics-that-can-be-passed-to-tf-keras-model-compile 
+        model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
+        # Callbacks for saving the model. Early stopping can be added if specified to the command line to prevent overfitting (callbacks)
+        callbacks = checkpointProgress(scratch_dir, args, experiment)
+        
+        with experiment.train():
+            train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
 
-    # Train the model
-    train_history = model.fit(train_loader, validation_data = val_loader, epochs = args.epochs)
-
-    # Evaluate the model with the test data
-    test_history = model.evaluate(test_loader)
-
-    #TODO: log all of this info and visualize it.
+        with experiment.test():
+            test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
+        
+        # Save the history of the training run and testing run.
+        json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w')) 
+        json.dump(test_history, open(os.path.join(scratch_dir, 'testhistory.json'), 'w'))
     return
 
 if __name__ == "__main__":
     # Parser for easier running of the script on command line. Can specify hyperparameters and model type this way.  
     parser = argparse.ArgumentParser()
-    parser.add_argument('-nepoch'   , type=int  , action="store", dest='epochs'   , default=10   ) # number of epochs
+    parser.add_argument('-nepoch'   , type=int  , action="store", dest='nepoch'   , default=10   ) # number of epochs
     parser.add_argument('-batchSize', type=int  , action="store", dest='batchSize', default=32   ) # batch size
     parser.add_argument('-lr'       , type=float, action="store", dest='lr'       , default=0.001) # learning rate
-    parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=0    ) # resample data
-    parser.add_argument('-wd'       , type=float, action="store", dest='wdecay'   , default=0    ) # weight decay
-    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=0.9  ) # for SGD
-    parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='VGG') # VGG, ResNet, etc...
-    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='SGD') # SGD, adam, etc...
-    parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='sparse_categorical_crossentropy')
-    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  ) # test percentage
+    parser.add_argument('-resample' , type=int  , action="store", dest='resample' , default=42   ) # resample data
+    parser.add_argument('-momentum' , type=float, action="store", dest='momentum' , default=9e-06  ) # for momentum SGD and RMSprop
+    parser.add_argument('-model'    , type=str  , action="store", dest='model'    , default='resnet') # VGG, ResNet, etc...
+    parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='adam') # SGD, adam, etc...
+    parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='categorical_crossentropy')
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
-    parser.add_argument('stopping'  , type=int , action="store", dest='earlyStopping', default=None)
+    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  )
+    parser.add_argument('-stopping' , type=int , action="store", dest='earlyStopping', default=3 )
+    parser.add_argument('-color'    , type=str  , action="store", dest='color'    , default='rgb') # rgb, grayscale 
+    parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=64   ) # image size
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
     parser.add_argument('-pretrain' , type=str  , action="store", dest='pretrain' , default=None) # use pretrained weights in specific directory
-    parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=True) # has softmax been applied for probability? If not, then set to True.
-    # See source: https://datascience.stackexchange.com/questions/73093/what-does-from-logits-true-do-in-sparsecategoricalcrossentropy-loss-function 
-    parser.add_argument('-metric'   , nargs='+', type=str, action="store", dest='metric', default=['accuracy', 'precision', 'recall', 'f1'])
+    parser.add_argument('-logits'   , type=bool , action="store", dest='from_logits', default=False) # has softmax been applied for probability? If not, then set to True. See source: https://datascience.stackexchange.com/questions/73093/what-does-from-logits-true-do-in-sparsecategoricalcrossentropy-loss-function 
+    parser.add_argument('-metric'   , nargs='+', type=str, action="store", dest='metric', default=['accuracy']) # ['accuracy', 'precision', 'recall', 'f1_score'] NOTE: any other metric than accuracy is broken at the moment for sparse_categorical_crossentropy it appears
+    parser.add_argument('-beta1'    , type=float, action="store", dest='beta1', default=0.9) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
+    parser.add_argument('-beta2'    , type=float, action="store", dest='beta2', default=0.999) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
+    parser.add_argument('-epsilon'  , type=float, action="store", dest='epsilon', default=1e-07) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
+    parser.add_argument('-nest'     , type=bool, action="store", dest='nesterov', default=False) # for SGD optimizer. Does nothing if specified and not using SGD optimizer
     args = parser.parse_args()
     main(args)

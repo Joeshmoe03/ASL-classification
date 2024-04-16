@@ -20,7 +20,7 @@ module load blas/gcc/64/3.10.0
 
 # Use a conda environment to manage dependencies. You may find the dependencies in the requirements.txt. Like such:
 eval "$(conda shell.bash hook)"
-conda activate ASLenv
+conda activate ASLgpu
 
 # Run the job: 
 # NOTE: You may need to change the python command to python3 or python2 depending on your setup with SLURM

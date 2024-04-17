@@ -66,6 +66,8 @@ def lossFactory(args):
         return tf.keras.losses.SparseCategoricalCrossentropy(from_logits = args.from_logits)
     elif args.loss == 'categorical_crossentropy':
         return tf.keras.losses.CategoricalCrossentropy(from_logits = args.from_logits)
+    elif args.loss == 'binary_crossentropy':
+        return tf.keras.losses.BinaryCrossentropy(from_logits = args.from_logits)
     else:
         raise NotImplementedError(f'Loss {args.loss} not implemented')
 

@@ -40,9 +40,10 @@ def main(args):
     train_dataset = image_dataset_from_directory(args.data_dir, 
                                                 labels = 'inferred', 
                                                 # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
-                                                label_mode = 'int' if args.loss == 'sparse_categorical_crossentropy' else 'categorical', 
+                                                label_mode = 'categorical' if args.loss == 'categorical_crossentropy' else 'int', 
                                                 color_mode = args.color, 
                                                 batch_size = args.batchSize, 
+                                                interpolation = 'nearest',
                                                 image_size = (args.img_size, args.img_size), 
                                                 shuffle = True, 
                                                 seed = args.resample)
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='categorical_crossentropy')
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
     parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  )
-    parser.add_argument('-stopping' , type=int , action="store", dest='earlyStopping', default=3 )
+    parser.add_argument('-stopping' , type=int , action="store" , dest='earlyStopping', default=None)
     parser.add_argument('-color'    , type=str  , action="store", dest='color'    , default='rgb') # rgb, grayscale 
     parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=64   ) # image size
     parser.add_argument('-data_dir' , type=str  , action="store", dest='data_dir' , default='./data/asl_alphabet_train/asl_alphabet_train/')
@@ -107,6 +108,6 @@ if __name__ == "__main__":
     parser.add_argument('-beta1'    , type=float, action="store", dest='beta1', default=0.9) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
     parser.add_argument('-beta2'    , type=float, action="store", dest='beta2', default=0.999) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
     parser.add_argument('-epsilon'  , type=float, action="store", dest='epsilon', default=1e-07) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
-    parser.add_argument('-nest'     , type=bool, action="store", dest='nesterov', default=False) # for SGD optimizer. Does nothing if specified and not using SGD optimizer
+    parser.add_argument('-nest'     , type=bool, action="store" , dest='nesterov', default=False) # for SGD optimizer. Does nothing if specified and not using SGD optimizer
     args = parser.parse_args()
     main(args)

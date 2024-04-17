@@ -50,6 +50,7 @@ If you would like, you can modify transforms within the **./train.py** file and 
 root_directory
    |- exploratory_analysis.ipynb
    |- model_experimentation.ipynb
+   |- end_to_end.ipynb
    |- README.md
    |- train.sbatch
    |- train.py
@@ -101,6 +102,7 @@ root_directory
 
 - **train.sbatch**: batch file for submitting training and other high compute jobs to HPC Slurm scheduler.
 - **train.py**: a script version that is runnable in our batch file for high performance computer training.
+- **end_to_end.ipynb**: the end-to-end jupyter notebook for our project.
 - **exploratory_analysis.ipynb**: the working file for all visualizations.
 - **model_experimentation.ipynb**: working file for testing and making models.
 - **util**: a directory containing important utility that will be used to efficiently and effectively adapt our code.

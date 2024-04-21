@@ -32,10 +32,26 @@ root_directory
 
    Elif using MacOS:
 
+   - Navigate to home directory and exit from any current conda environment
+   - Download [miniforge](https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh) to install the package for a workaround for conda on M1 Macs.
+   - Install miniforge: `sh ~/Downloads/Miniforge3-MacOSX-arm64.sh`
+   - Activate miniforge: `source ~/miniforge3/bin/activate`
+   - Install apple-specific TF dependencies: `conda install -c apple tensorflow-deps==2.9.0`
+   - Create a new conda environment: `conda create --name ASLenv python=3.10`
+   - Acitvate the environment: `conda activate ASLenv`
+   - Install additional dependencies:
+     - `python -m pip install tensorflow-macos==2.9.0`
+     - `python -m pip install tensorflow-metal==0.5.0`
+   - Enter project directory in ASLenv and run: `pip install -r ./dependencies/CPUrequirements.txt`
    - Visit [pypi.org to download tensorflow-macos v2.10 .whl file](https://pypi.org/project/tensorflow-macos/2.10.0/). Download either x86 or ARM64 depending on your device.
-   - Run: `pip install tensorflow_macos-2.10.0-cp310-cp310-macosx_12_0_arm64.whl`
-     or `pip install tensorflow_macos-2.10.0-cp310-cp310-macosx_12_0_x86_64.whl` depending on what you downloaded.
-   - `pip install -r ./dependencies/CPUrequirements.txt`
+   - Run:
+     - For M1/apple silicon: `pip install tensorflow_macos-2.10.0-cp310-cp310-macosx_12_0_arm64.whl`
+     - For intel silicon: `pip install tensorflow_macos-2.10.0-cp310-cp310-macosx_12_0_x86_64.whl`
+   - Finally, install jupyter notebook deps: `python -m pip install ipykernel`
+   - Additional Mac Tensorflow install troubleshooting resources:
+     - [Apple Forum](https://forums.developer.apple.com/forums/thread/689300)
+     - [Medium Article](https://medium.com/geekculture/installing-tensorflow-on-apple-silicon-84a28050d784)
+     - [YouTube Video](https://www.youtube.com/watch?v=WFIZn6titnc)
 
 ## **Training**
 

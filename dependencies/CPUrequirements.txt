@@ -17,7 +17,6 @@ pandas==2.2.2
 
 # ML
 scikit-learn==1.4.2
-tensorflow
 
 # tensorflow 2.10.0 does not support F1Score
 tensorflow-addons==0.22.0

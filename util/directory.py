@@ -31,5 +31,6 @@ def checkpointProgress(scratch_dir, args, experiment):
         callbacks.append(tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', patience = args.earlyStopping))
 
     # Add a callback for logging all passed metrics to comet
-    callbacks.append(tf.keras.callbacks.LambdaCallback(on_epoch_end = lambda epoch, logs: experiment.log_metrics(logs, step = epoch)))
+    if args.comet:
+        callbacks.append(tf.keras.callbacks.LambdaCallback(on_epoch_end = lambda epoch, logs: experiment.log_metrics(logs, step = epoch)))
     return callbacks

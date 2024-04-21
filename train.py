@@ -11,17 +11,6 @@ from util.metric import metricFactory
 from util.transform import transformTrainData, transformValTestData
 from util.directory import initScratchDir, checkpointProgress
 
-# Setting keys for privacy: https://networkdirection.net/python/resources/env-variable/
-API_KEY = os.environ.get('COMET_API_KEY')
-
-# Initialize Comet experiment
-experiment = Experiment(api_key=API_KEY, 
-                        project_name="asl",
-                        workspace="joeshmoe03",
-                        auto_output_logging="default",
-                        auto_param_logging = True,
-                        auto_metric_logging = True)
-
 def main(args):
     '''
     Main function for training the model. This is the entry point for the script. 
@@ -32,6 +21,19 @@ def main(args):
     Args:
         args: command-line arguments. These are the hyperparameters for the model/model.
     '''
+    experiment = None
+    if args.comet:
+    # Setting keys for privacy: https://networkdirection.net/python/resources/env-variable/
+        API_KEY = os.environ.get('COMET_API_KEY')
+
+        # Initialize Comet experiment
+        experiment = Experiment(api_key=API_KEY, 
+                                project_name="asl",
+                                workspace="joeshmoe03",
+                                auto_output_logging="default",
+                                auto_param_logging = True,
+                                auto_metric_logging = True)
+
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = initScratchDir(args)
@@ -59,8 +61,15 @@ def main(args):
     train_dataset = train_dataset.map(transformTrainData)
     val_dataset = val_dataset.map(transformValTestData)
     test_dataset = test_dataset.map(transformValTestData)
-    
-    with tf.device('/device:gpu:0'):
+
+    if tf.config.list_physical_devices('GPU'):
+        print("GPU is available. Using GPU.")
+        device = '/device:gpu:0'
+    else:
+        print("GPU is not available. Using CPU.")
+        device = '/device:cpu:0'
+
+    with tf.device(device):
         # Load the model and optimizer and loss functions
         model = ModelFactory(args, args.model).fetch_model(args, num_classes=29)
         # Supported optimizers are SGD and Adam
@@ -74,12 +83,17 @@ def main(args):
         # Callbacks for saving the model. Early stopping can be added if specified to the command line to prevent overfitting (callbacks)
         callbacks = checkpointProgress(scratch_dir, args, experiment)
         
-        with experiment.train():
+        if args.comet:
+            # Log with Comet as specified in the command line
+            with experiment.train():
+                train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
+            with experiment.test():
+                test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
+        else:
+            # Train the model without Comet logging
             train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
-
-        with experiment.test():
             test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
-        
+            
         # Save the history of the training run and testing run.
         json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w')) 
         json.dump(test_history, open(os.path.join(scratch_dir, 'testhistory.json'), 'w'))
@@ -109,5 +123,6 @@ if __name__ == "__main__":
     parser.add_argument('-beta2'    , type=float, action="store", dest='beta2', default=0.999) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
     parser.add_argument('-epsilon'  , type=float, action="store", dest='epsilon', default=1e-07) # for Adam optimizer. Does nothing if specified and not using Adam optimizer
     parser.add_argument('-nest'     , type=bool, action="store" , dest='nesterov', default=False) # for SGD optimizer. Does nothing if specified and not using SGD optimizer
+    parser.add_argument('-comet'    , type=bool, action="store" , dest='comet', default=False) # for Comet logging. If False, then Comet logging is disabled
     args = parser.parse_args()
     main(args)

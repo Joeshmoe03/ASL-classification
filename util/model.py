@@ -1,7 +1,7 @@
 import tensorflow as tf
 from model.ResNet import ResNet50
 from model.simpleModel import ConvNet3, ConvNet4, ConvNet2
-#from model.VGG import VGG
+from model.vgg import Vgg16
 import os
 
 class ModelFactory():
@@ -17,7 +17,7 @@ class ModelFactory():
 
         # Retrieve the model corresponding to specified arg on command-line
         if self.model_name == 'vgg':
-            pass #self.model = VGG() #TODO: IMPLEMENT
+            self.model = Vgg16(args.img_size, args.color, num_classes)
         elif self.model_name == 'resnet':
             self.model = ResNet50(args.img_size, args.color, num_classes) 
         elif self.model_name == 'convnet3':

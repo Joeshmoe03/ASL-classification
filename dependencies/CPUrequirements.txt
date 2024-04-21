@@ -10,7 +10,7 @@ matplotlib==3.5.0
 numpy==1.26.4
 
 # working with images
-opencv-python==5.5.0
+opencv-python==4.9.0.80
 
 # maybe not needed?
 pandas==2.2.2

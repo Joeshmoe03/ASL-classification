@@ -23,6 +23,7 @@ def main(args):
     '''
     experiment = None
     if args.comet:
+    
     # Setting keys for privacy: https://networkdirection.net/python/resources/env-variable/
         API_KEY = os.environ.get('COMET_API_KEY')
 
@@ -37,18 +38,19 @@ def main(args):
     # We save training runs and their associated sampling of data in the /temp/ 
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = initScratchDir(args)
-
+    
     # Load the data into a tf.data.Dataset
     train_dataset = image_dataset_from_directory(args.data_dir, 
                                                 labels = 'inferred', 
                                                 # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
                                                 label_mode = 'categorical' if args.loss == 'categorical_crossentropy' else 'int', 
                                                 color_mode = args.color, 
-                                                batch_size = args.batchSize, 
+                                                batch_size = args.batchSize,
                                                 interpolation = 'nearest',
                                                 image_size = (args.img_size, args.img_size), 
-                                                shuffle = True, 
-                                                seed = args.resample)
+                                                shuffle = True,
+                                                seed = args.resample,
+                                                )
     
     # Split the data into training, validation, and testing sets
     # From: https://stackoverflow.com/questions/48213766/split-a-dataset-created-by-tensorflow-dataset-api-in-to-train-and-test 

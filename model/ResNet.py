@@ -1,7 +1,6 @@
 import tensorflow as tf
 
 def ResNet50(img_size: int, color: str, num_classes: int):
-    # Load the pre-trained ResNet50 model
     base_model = tf.keras.applications.ResNet50(
         include_top=False,
         weights=None,

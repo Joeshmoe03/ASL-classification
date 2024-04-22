@@ -93,6 +93,9 @@ def bounding_box(image, detection):
     w = int(w * 2)
     h = int(h * 2)
 
+    w = max(w, h)
+    h = max(w, h)
+
     x -= (w - detection[5]) // 2
     y -= (h - detection[6]) // 2
 
@@ -100,14 +103,24 @@ def bounding_box(image, detection):
 
 def transform_image(image):
     # TODO: Implement image transformations
+
     tf_image = tf.image.convert_image_dtype(image, tf.float32)
     tf_image = tf.image.resize(tf_image, (64, 64))
+    return tf_image
 
 def main():
+    #classes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"] #, "del", "nothing", "space"]
     yolo = YOLO("temp/YOLO/cross-hands-yolov4-tiny.cfg", "temp/YOLO/cross-hands-yolov4-tiny.weights", ["hand"])
-
     yolo.size = int(args.size)
     yolo.confidence = float(args.confidence)
+
+    # Load the model for classification
+    model = ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
+    # Debugged building: https://stackoverflow.com/questions/59356410/tensorflow-2-0-build-function
+    # for an explanation of why you need to call .build() before loading weights.
+    model.build((None, 64, 64, 3))
+    # Load the weights into the model
+    model.load_weights('temp\convnet3_adam_categorical_crossentropy_lr0.001_mo9e-06_rs4264\convnet3.h5')
 
     cv2.namedWindow("preview", cv2.WINDOW_NORMAL)
     cap = cv2.VideoCapture(0)
@@ -134,12 +147,23 @@ def main():
         # Display the results
         for detection in results:
             # Scale to frame size with a margin for further classification
-            id, name, confidence, x, y, w, h, box = bounding_box(frame, detection)
+            id, name, confidence, x, y, w, h, bbox = bounding_box(frame, detection)
 
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, f"{name} {confidence:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        cv2.putText(frame, f"Time: {inference_time:.2f} | Hands: {hand_count}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)    
+            # Classify the hand
+            try:
+                bbox = transform_image(bbox)
+                bbox = tf.expand_dims(bbox, axis=0)
+                softmax_preds = model.predict(bbox)
+                prediction = np.argmax(softmax_preds)
+                label = classes[prediction]
+                cv2.putText(frame, f"{label}", (x, y + h + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            except:
+                pass
+            
+        cv2.putText(frame, f"Time: {inference_time:.2f} | Hands: {hand_count}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         cv2.imshow("preview", frame)
 
@@ -154,6 +178,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Demo')
     parser.add_argument('-confidence', type=float, default=0.5, help='Confidence')
     parser.add_argument('-threshold', type=float, default=0.3, help='Threshold')
-    parser.add_argument('-size', type=int, default=416, help='Size')
+    parser.add_argument('-size', type=int, default=500, help='Size')
     args = parser.parse_args()
     main()

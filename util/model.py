@@ -21,11 +21,20 @@ class ModelFactory():
         elif self.model_name == 'resnet':
             self.model = ResNet50(args.img_size, args.color, num_classes) 
         elif self.model_name == 'convnet3':
-            self.model = ConvNet3(args.img_size, num_classes)
+            if args.color == 'grayscale':
+                self.model = ConvNet3(num_classes, input_shape = (args.img_size, args.img_size, 1))
+            else:
+                self.model = ConvNet3(num_classes, input_shape = (args.img_size, args.img_size, 3))
         elif self.model_name == 'convnet4':
-            self.model = ConvNet4(args.img_size, num_classes)
+            if args.color == 'grayscale':
+                self.model = ConvNet4(num_classes, input_shape = (args.img_size, args.img_size, 1))
+            else:
+                self.model = ConvNet4(num_classes, input_shape = (args.img_size, args.img_size, 3))
         elif self.model_name == 'convnet2':
-            self.model = ConvNet2(args.img_size, num_classes)
+            if args.color == 'grayscale':
+                self.model = ConvNet2(num_classes, input_shape = (args.img_size, args.img_size, 1))
+            else:
+                self.model = ConvNet2(num_classes, input_shape = (args.img_size, args.img_size, 3))
         else:
             raise NotImplementedError(f'Model {self.model_name} not implemented')
         

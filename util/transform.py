@@ -5,7 +5,7 @@ import random
 def transformTrainData(image, label):
     '''
     See the documentation for tf.image for more information on the transformations: 
-    https://www.tensorflow.org/api_docs/python/tf/image
+    https://www.tensorflow.org/api_docs/python/tf/image is our source for transformations.
     '''
     # Performs scaling. NOTE: FEEL FREE TO MODIFY. SEE DOCUMENTATION ABOVE TO FIND MORE TRANSFORMATIONS.
     image = tf.image.convert_image_dtype(image, tf.float32)
@@ -17,7 +17,7 @@ def transformTrainData(image, label):
 def transformValTestData(image, label):
     '''
     See the documentation for tf.image for more information on the transformations:
-    https://www.tensorflow.org/api_docs/python/tf/image
+    https://www.tensorflow.org/api_docs/python/tf/image is our source for transformations.
     '''
     # Performs scaling
     image = tf.image.convert_image_dtype(image, tf.float32)

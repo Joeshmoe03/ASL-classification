@@ -19,7 +19,7 @@ root_directory
    |- ...
 ```
 
-3. Create a conda environment named ASLenv: `conda create --name ASLenv python=3.10` and `conda activate ASLenv`
+3. Have [Anaconda](https://docs.anaconda.com/free/anaconda/install/) and create a conda environment named ASLenv: `conda create --name ASLenv python=3.10` and `conda activate ASLenv`
 4. Install dependencies:
 
    Iff using Nvidia GPU w/ Windows - tested on Windows:
@@ -52,6 +52,10 @@ root_directory
      - [Apple Forum](https://forums.developer.apple.com/forums/thread/689300)
      - [Medium Article](https://medium.com/geekculture/installing-tensorflow-on-apple-silicon-84a28050d784)
      - [YouTube Video](https://www.youtube.com/watch?v=WFIZn6titnc)
+
+   Else:
+
+   - `pip install -r ./dependencies/CPUrequirements.txt`
 
 ## **Training**
 

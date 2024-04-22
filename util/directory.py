@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+from tensorflow_addons.metrics import F1Score
 
 def initScratchDir(args):
     '''

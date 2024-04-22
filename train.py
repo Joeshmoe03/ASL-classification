@@ -2,14 +2,16 @@
 from comet_ml import Experiment
 import math
 from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
 import tensorflow as tf
 import os
 import argparse
 import json
 from util.model import ModelFactory, optimizerFactory, lossFactory
 from util.metric import metricFactory
-from util.transform import transformTrainData, transformValTestData
+from util.transform import transformTrainData, transformTestData
 from util.directory import initScratchDir, checkpointProgress
+from sklearn.metrics import confusion_matrix
 
 def main(args):
     '''
@@ -40,34 +42,24 @@ def main(args):
     scratch_dir = initScratchDir(args)
     
     # Load the data into a tf.data.Dataset
-    train_dataset = image_dataset_from_directory(args.data_dir, 
-                                                labels = 'inferred', 
-                                                # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
-                                                label_mode = 'categorical' if args.loss == 'categorical_crossentropy' else 'int', 
-                                                color_mode = args.color, 
-                                                batch_size = args.batchSize,
-                                                interpolation = 'nearest',
-                                                image_size = (args.img_size, args.img_size), 
-                                                shuffle = True,
-                                                seed = args.resample,
-                                                )
-    
-    # Split the data into training, validation, and testing sets
-    # From: https://stackoverflow.com/questions/48213766/split-a-dataset-created-by-tensorflow-dataset-api-in-to-train-and-test 
-    num_batches = len(train_dataset)
-    num_test = math.floor(args.testSize * num_batches)
-    num_val = math.floor(args.valSize * num_batches)
-    num_train = num_batches - num_test - num_val
+    # train_dataset, val_dataset = image_dataset_from_directory(args.data_dir, 
+    #                                                         labels = 'inferred', 
+    #                                                         # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
+    #                                                         label_mode = 'categorical' if args.loss == 'categorical_crossentropy' else 'int', 
+    #                                                         color_mode = args.color, 
+    #                                                         batch_size = args.batchSize,
+    #                                                         interpolation = 'nearest',
+    #                                                         image_size = (args.img_size, args.img_size), 
+    #                                                         shuffle = True,
+    #                                                         seed = args.resample,
+    #                                                         validation_split = args.valSize,
+    #                                                         subset = 'both')
 
-    # Split the dataset into training, validation, and testing sets
-    train_dataset = train_dataset.take(num_train)
-    val_dataset = train_dataset.skip(num_train).take(num_val)
-    test_dataset = train_dataset.skip(num_train + num_val).take(num_test)
+
     
     # Apply transformations to the data
     train_dataset = train_dataset.map(transformTrainData)
-    val_dataset = val_dataset.map(transformValTestData)
-    test_dataset = test_dataset.map(transformValTestData)
+    val_dataset = val_dataset.map(transformTestData)
 
     if tf.config.list_physical_devices('GPU'):
         print("GPU is available. Using GPU.")
@@ -94,16 +86,14 @@ def main(args):
             # Log with Comet as specified in the command line
             with experiment.train():
                 train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
-            with experiment.test():
-                test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
+                experiment.end()
+
         else:
             # Train the model without Comet logging
             train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
-            test_history = model.evaluate(test_dataset, batch_size=args.batchSize)
             
         # Save the history of the training run and testing run.
         json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w')) 
-        json.dump(test_history, open(os.path.join(scratch_dir, 'testhistory.json'), 'w'))
     return
 
 if __name__ == "__main__":
@@ -118,7 +108,6 @@ if __name__ == "__main__":
     parser.add_argument('-optim'    , type=str  , action="store", dest='optim'    , default='adam') # SGD, adam, etc...
     parser.add_argument('-loss'     , type=str  , action="store", dest='loss'     , default='categorical_crossentropy')
     parser.add_argument('-val'      , type=float, action="store", dest='valSize'  , default=0.2  ) # validation percentage
-    parser.add_argument('-test'     , type=float, action="store", dest='testSize' , default=0.1  )
     parser.add_argument('-stopping' , type=int , action="store" , dest='earlyStopping', default=None)
     parser.add_argument('-color'    , type=str  , action="store", dest='color'    , default='rgb') # rgb, grayscale 
     parser.add_argument('-img_size' , type=int  , action="store", dest='img_size' , default=64   ) # image size

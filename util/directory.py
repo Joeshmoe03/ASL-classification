@@ -39,4 +39,5 @@ def checkpointProgress(scratch_dir, args, experiment):
 
         # Source for how we figured it out: https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/LambdaCallback
         callbacks.append(tf.keras.callbacks.LambdaCallback(on_epoch_end = lambda epoch, logs: experiment.log_metrics(logs, step = epoch)))
+
     return callbacks

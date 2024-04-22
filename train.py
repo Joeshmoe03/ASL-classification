@@ -54,10 +54,15 @@ def main(args):
     
     # Split the data into training, validation, and testing sets
     # From: https://stackoverflow.com/questions/48213766/split-a-dataset-created-by-tensorflow-dataset-api-in-to-train-and-test 
-    test_dataset = train_dataset.take(math.floor(args.testSize * len(train_dataset)))
-    train_dataset = train_dataset.skip(math.floor(args.testSize * len(train_dataset)))
-    val_dataset = train_dataset.take(math.floor(args.valSize * len(train_dataset)))
-    train_dataset = train_dataset.skip(math.floor(args.valSize * len(train_dataset)))
+    num_batches = len(train_dataset)
+    num_test = math.floor(args.testSize * num_batches)
+    num_val = math.floor(args.valSize * num_batches)
+    num_train = num_batches - num_test - num_val
+
+    # Split the dataset into training, validation, and testing sets
+    train_dataset = train_dataset.take(num_train)
+    val_dataset = train_dataset.skip(num_train).take(num_val)
+    test_dataset = train_dataset.skip(num_train + num_val).take(num_test)
     
     # Apply transformations to the data
     train_dataset = train_dataset.map(transformTrainData)

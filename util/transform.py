@@ -9,9 +9,7 @@ def transformTrainData(image, label):
     '''
     # Performs scaling. NOTE: FEEL FREE TO MODIFY. SEE DOCUMENTATION ABOVE TO FIND MORE TRANSFORMATIONS.
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.rot90(image, k = random.randint(0, 3))
     image = tf.image.random_flip_left_right(image)
-    image = tf.image.random_flip_up_down(image)
     return image, label
 
 def transformTestData(image, label):

@@ -11,7 +11,6 @@ from util.model import ModelFactory, optimizerFactory, lossFactory
 from util.metric import metricFactory
 from util.transform import transformTrainData, transformTestData
 from util.directory import initScratchDir, checkpointProgress
-from sklearn.metrics import confusion_matrix
 
 def main(args):
     '''
@@ -41,25 +40,30 @@ def main(args):
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = initScratchDir(args)
     
-    # Load the data into a tf.data.Dataset
-    # train_dataset, val_dataset = image_dataset_from_directory(args.data_dir, 
-    #                                                         labels = 'inferred', 
-    #                                                         # Specify label encoding type based on loss function (one hot for categorical_crossentropy, int for sparse_categorical_crossentropy)
-    #                                                         label_mode = 'categorical' if args.loss == 'categorical_crossentropy' else 'int', 
-    #                                                         color_mode = args.color, 
-    #                                                         batch_size = args.batchSize,
-    #                                                         interpolation = 'nearest',
-    #                                                         image_size = (args.img_size, args.img_size), 
-    #                                                         shuffle = True,
-    #                                                         seed = args.resample,
-    #                                                         validation_split = args.valSize,
-    #                                                         subset = 'both')
+    # Source: https://stackoverflow.com/questions/42443936/keras-split-train-test-set-when-using-imagedatagenerator
+    datagen = ImageDataGenerator(rescale=1./255,
+                                 validation_split=args.valSize,
+                                 fill_mode='nearest')
 
+    train_dataset = datagen.flow_from_directory(args.data_dir,
+                                                target_size=(args.img_size, args.img_size),
+                                                color_mode=args.color,
+                                                batch_size=args.batchSize,
+                                                class_mode='categorical' if args.loss == 'categorical_crossentropy' else 'sparse',
+                                                subset='training',
+                                                seed=args.resample)
 
-    
+    val_dataset = datagen.flow_from_directory(args.data_dir,
+                                                target_size=(args.img_size, args.img_size),
+                                                color_mode=args.color,
+                                                batch_size=args.batchSize,
+                                                class_mode='categorical' if args.loss == 'categorical_crossentropy' else 'sparse',
+                                                subset='validation',
+                                                seed=args.resample)
+        
     # Apply transformations to the data
-    train_dataset = train_dataset.map(transformTrainData)
-    val_dataset = val_dataset.map(transformTestData)
+    #train_dataset = train_dataset.map(transformTrainData)
+    #val_dataset = val_dataset.map(transformTestData)
 
     if tf.config.list_physical_devices('GPU'):
         print("GPU is available. Using GPU.")

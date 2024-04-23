@@ -4,6 +4,7 @@ import time
 import numpy as np
 import cv2
 from model.simpleModel import ConvNet2, ConvNet3, ConvNet4
+from model.vgg import Vgg16
 import tensorflow as tf
 
 # NOTE: IMPORTANT DISCLAIMER. THIS IS A DEMO FILE THE WE LARGELY SOURCED FROM THE FOLLOWING REPO: https://github.com/cansik/yolo-hand-detection/blob/master/yolo.py
@@ -109,23 +110,30 @@ def bounding_box(image, detection):
 def transform_image(image):
     # TODO: Implement image transformations
 
-    tf_image = tf.image.convert_image_dtype(image, tf.float32)
-    tf_image = tf.image.resize(tf_image, (64, 64))
+    tf_image = tf.convert_to_tensor(image, dtype=tf.float32)
+    tf_image = tf.image.resize(tf_image, (32, 32))
+    tf_image = tf_image / 255.0
+
     return tf_image
 
 def main():
-    #classes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"] #, "del", "nothing", "space"]
+    classes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "del", "nothing", "space"]
+    
+    # path to weights
+    convnet = os.path.join("temp", "convnet3_adam_categorical_crossentropy_lr0.001_mo9e-06_rs4264", "convnet3.h5")
+    vgg = os.path.join("temp", "vgg_adam_categorical_crossentropy_lr0.001_mo9e-06_rs9932", "vgg.h5")
+
     yolo = YOLO("temp/YOLO/cross-hands-yolov4-tiny.cfg", "temp/YOLO/cross-hands-yolov4-tiny.weights", ["hand"])
     yolo.size = int(args.size)
     yolo.confidence = float(args.confidence)
 
     # Load the model for classification
-    model = ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
+    model = Vgg16(32, 'rgb', 29)#ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
     # Debugged building: https://stackoverflow.com/questions/59356410/tensorflow-2-0-build-function
     # for an explanation of why you need to call .build() before loading weights.
-    model.build((None, 64, 64, 3))
+    model.build((None, 32, 32, 3))
     # Load the weights into the model
-    model.load_weights('temp\convnet3_adam_categorical_crossentropy_lr0.001_mo9e-06_rs4264\convnet3.h5')
+    model.load_weights(vgg)
 
     cv2.namedWindow("preview", cv2.WINDOW_NORMAL)
     cap = cv2.VideoCapture(0)

@@ -6,6 +6,11 @@ import cv2
 from model.simpleModel import ConvNet2, ConvNet3, ConvNet4
 import tensorflow as tf
 
+# NOTE: IMPORTANT DISCLAIMER. THIS IS A DEMO FILE THE WE LARGELY SOURCED FROM THE FOLLOWING REPO: https://github.com/cansik/yolo-hand-detection/blob/master/yolo.py
+# We have made some modifications to the code to suit our needs. We have also added some additional functionality to the code.
+# We also relied on https://github.com/cansik/yolo-hand-detection/blob/master/yolo.py to help us understand how to use the YOLO model.
+# CREDIT TO Florian Bruggisser, djthegr8 DJ, and roachsinai RoachZhao for the original code.
+
 class YOLO:
 
     def __init__(self, config, model, labels, size=416, confidence=0.5, threshold=0.3):

@@ -18,7 +18,7 @@ def Vgg16(img_size, color, num_classes):
     # Use a base vgg16 with that is not pretrained, 
     base_model = vgg16.VGG16(
         include_top=False,
-        weights = None,
+        weights = 'imagenet',#None,
         input_shape=(img_size, img_size, 3 if color == 'rgb' else 1),
         pooling=None,
     )

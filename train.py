@@ -60,10 +60,6 @@ def main(args):
                                                 class_mode='categorical' if args.loss == 'categorical_crossentropy' else 'sparse',
                                                 subset='validation',
                                                 seed=args.resample)
-        
-    # Apply transformations to the data
-    #train_dataset = train_dataset.map(transformTrainData)
-    #val_dataset = val_dataset.map(transformTestData)
 
     if tf.config.list_physical_devices('GPU'):
         print("GPU is available. Using GPU.")

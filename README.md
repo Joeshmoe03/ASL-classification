@@ -110,12 +110,3 @@ Note that to perform training, you will need to:
 ## **Helpful Notes**
 
 For GPU users, [here is the video that finally got my tensorflow-gpu working](https://www.youtube.com/watch?v=NrJz3ACosJA)
-
-## **TODO**
-
-1. Implement VGG.py
-2. Update ModelFactory
-3. Try training on VGG
-
-4. Object detection
-5. Full product

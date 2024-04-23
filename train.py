@@ -1,7 +1,5 @@
 # Load dependencies
 from comet_ml import Experiment
-import math
-from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
 from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
 import tensorflow as tf
 import os
@@ -9,7 +7,6 @@ import argparse
 import json
 from util.model import ModelFactory, optimizerFactory, lossFactory
 from util.metric import metricFactory
-from util.transform import transformTrainData, transformTestData
 from util.directory import initScratchDir, checkpointProgress
 
 def main(args):
@@ -93,7 +90,8 @@ def main(args):
             train_history = model.fit(train_dataset, validation_data = val_dataset, epochs = args.nepoch, callbacks = callbacks)
             
         # Save the history of the training run and testing run.
-        json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w')) 
+        json.dump(train_history.history, open(os.path.join(scratch_dir, 'trainhistory.json'), 'w'))
+
     return
 
 if __name__ == "__main__":

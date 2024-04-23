@@ -52,9 +52,6 @@ root_directory
      - [Apple Forum](https://forums.developer.apple.com/forums/thread/689300)
      - [Medium Article](https://medium.com/geekculture/installing-tensorflow-on-apple-silicon-84a28050d784)
      - [YouTube Video](https://www.youtube.com/watch?v=WFIZn6titnc)
-
-   Else:
-
    - `pip install -r ./dependencies/CPUrequirements.txt`
 
 ## **Training**
@@ -98,14 +95,15 @@ Note that to perform training, you will need to:
 
 - **train.sbatch**: batch file for submitting training and other high compute jobs to HPC Slurm scheduler.
 - **train.py**: a script version that is runnable in our batch file for high performance computer training.
-- **end_to_end.ipynb**: the end-to-end jupyter notebook for our project.
-- **exploratory_analysis.ipynb**: the working file for all visualizations.
-- **model_experimentation.ipynb**: working file for testing and making models.
+- **end_to_end.ipynb**: the end-to-end jupyter notebook for our project. This should be the FIRST thing you look at.
+- **exploratory_analysis.ipynb**: the DRAFT working file for all visualizations.
+- **model_experimentation.ipynb**: the DRAFT working file for testing and making models.
 - **util**: a directory containing important utility that will be used to efficiently and effectively adapt our code.
-- **model**: a directory storing tf models and their weights if interested in pretraining. Pretrain weights should be saved to ./model/weights/VGG.weights.h5 and models as ./model/VGG.py for example.
-- **figures**: containing visualizations made from notebooks or with comet_ml
+- **model**: a directory storing tf models and their weights if interested in pretraining. Pretrain weights should be saved to ./model/weights/VGGweights.h5 and models as ./model/VGG.py for example.
+- **figures**: containing visualizations made from notebooks or with comet_ml.
 - **dependencies**: folder containing requirements.txt for setting up environment.
 - **temp**: all saved models and their associated tracked metric performances.
+- **demo.py**: PLEASE NOTE THAT THIS IS LARGLEY NOT OUR OWN DEMO FILE. WE ADAPT IT FROM [HERE](https://github.com/cansik/yolo-hand-detection/blob/master/yolo.py) AND PLUG IN OUR OWN CLASSIFIER. THE CORRESPONDING YOLO WEIGHTS IN ./temp/ ARE NOT OUR OWN. CREDIT TO Florian Bruggisser, djthegr8 DJ, and roachsinai RoachZhao. To run: `python demo.py`
 
 ## **Helpful Notes**
 

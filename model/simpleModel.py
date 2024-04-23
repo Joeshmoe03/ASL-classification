@@ -41,7 +41,7 @@ def ConvNet4(num_classes: int, input_shape: tuple = (64, 64, 3)):
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
 
-    # Our model output is a 2D tensor of shape (img_size, img_size, 1) where softmax gives us a probability distribution over the classes
+    # Softmax gives us a probability distribution over the classes
     model.add(Dense(num_classes, activation='softmax'))
     return model
 
@@ -79,7 +79,7 @@ def ConvNet3(num_classes: int, input_shape: tuple = (64, 64, 3)):
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
 
-    # Our model output is a 2D tensor of shape (img_size, img_size, 1) where softmax gives us a probability distribution over the classes
+    # Softmax gives us a probability distribution over the classes
     model.add(Dense(num_classes, activation='softmax'))
     return model
 
@@ -111,6 +111,6 @@ def ConvNet2(num_classes: int, input_shape: tuple = (64, 64, 3)):
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
 
-    # Our model output is a 2D tensor of shape (img_size, img_size, 1) where softmax gives us a probability distribution over the classes
+    # Softmax gives us a probability distribution over the classes
     model.add(Dense(num_classes, activation='softmax'))
     return model

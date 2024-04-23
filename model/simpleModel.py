@@ -14,7 +14,7 @@ def ConvNet4(num_classes: int, input_shape: tuple = (64, 64, 3)):
     # The model is a sequence of layers
     model = Sequential()
     # Our first convolutional block
-    model.add(Conv2D(32, kernel_size=(5, 5), input_shape=input_shape, padding='same'))
+    model.add(Conv2D(32, kernel_size=(3, 3), input_shape=input_shape, padding='same'))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Dropout(0.2))
@@ -58,19 +58,20 @@ def ConvNet3(num_classes: int, input_shape: tuple = (64, 64, 3)):
     model = Sequential()
 
     # Our first convolutional block
-    model.add(Conv2D(32, kernel_size=(5, 5), input_shape=input_shape))
+    # model.add(Conv2D(32, kernel_size=(3, 3), input_shape=input_shape))
+    model.add(Conv2D(32, kernel_size=(3, 3), input_shape=input_shape, padding = 'same'))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Dropout(0.2))
 
     # Our second convolutional block
-    model.add(Conv2D(64, kernel_size=(3, 3)))
+    model.add(Conv2D(64, kernel_size=(3, 3), padding = 'same'))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Dropout(0.2))
 
     # Our third convolutional block
-    model.add(Conv2D(128, kernel_size=(3, 3)))
+    model.add(Conv2D(128, kernel_size=(3, 3), padding = 'same'))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Dropout(0.2))
@@ -96,7 +97,7 @@ def ConvNet2(num_classes: int, input_shape: tuple = (64, 64, 3)):
     model = Sequential()
 
     # Our first convolutional block
-    model.add(Conv2D(32, kernel_size=(5, 5), input_shape=input_shape))
+    model.add(Conv2D(32, kernel_size=(3, 3), input_shape=input_shape))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Dropout(0.2))

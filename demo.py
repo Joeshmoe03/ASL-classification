@@ -95,10 +95,11 @@ def bounding_box(image, detection):
     Extract the bounding box from the image to pass to the classifier
     '''
     id, name, confidence, x, y, w, h = detection
-    # Scale to frame size with a margin for further classification
+    # Scale to frame size with a margin for further classification. Normally the Yolo model would give us a bounding box too small to capture the entire hand.
     w = int(w * 2)
     h = int(h * 2)
 
+    # We use max to ensure that shape of the bounding box is more square-like (how we trained the model)
     w = max(w, h)
     h = max(w, h)
 
@@ -108,8 +109,7 @@ def bounding_box(image, detection):
     return id, name, confidence, x, y, w, h, image[y:y+h, x:x+w]
 
 def transform_image(image):
-    # TODO: Implement image transformations
-
+    # transforms the image to the correct format for the model
     tf_image = tf.convert_to_tensor(image, dtype=tf.float32)
     tf_image = tf.image.resize(tf_image, (50, 50))
     tf_image = tf_image / 255.0
@@ -117,73 +117,95 @@ def transform_image(image):
     return tf_image
 
 def main():
+    # Classes for the ASL dataset to map the predictions to the correct labels
     classes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "del", "nothing", "space"]
     
-    # path to weights
-    convnet = os.path.join("temp", "convnet3_adam_categorical_crossentropy_lr0.001_mo9e-06_rs4264", "convnet3.h5")
-    vgg = os.path.join("temp", "vgg_adam_categorical_crossentropy_lr0.001_mo9e-06_rs132", "vgg.h5")
+    # path to weights: our model trained on the ASL dataset
     best_vgg = os.path.join('temp', 'vgg_adam_categorical_crossentropy_lr0.0001_mo9e-06_rs150', 'vgg.h5')
 
+    # Load the YOLO model: not trained by us, but by the original authors
     yolo = YOLO("temp/YOLO/cross-hands-yolov4-tiny.cfg", "temp/YOLO/cross-hands-yolov4-tiny.weights", ["hand"])
     yolo.size = int(args.size)
     yolo.confidence = float(args.confidence)
 
     # Load the model for classification
     model = Vgg16(50, 'rgb', 29)#ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
+    
     # Debugged building: https://stackoverflow.com/questions/59356410/tensorflow-2-0-build-function
     # for an explanation of why you need to call .build() before loading weights.
     model.build((None, 32, 32, 3))
+
     # Load the weights into the model
     model.load_weights(best_vgg)
 
+    # Open the camera in a window
     cv2.namedWindow("preview", cv2.WINDOW_NORMAL)
     cap = cv2.VideoCapture(0)
 
+    # Check if the camera is opened otherwise exit
     if not cap.isOpened():
         print("Error: Couldn't open camera.")
         exit(1)
 
+    # Looping for continuous inference
     while True:
+
+        # Read the frame
         ret, frame = cap.read()
 
+        # Exit if the frame is not read correctly
         if not ret:
             print("Error: Couldn't read frame.")
             break
 
+        # Inference on YOLO: NOT TRAINED BY US (their code)
         width, height, inference_time, results = yolo.inference(frame)
 
-        # Sort by confidence
+        # Sort by confidence (not our model, but the YOLO model - their code)
         results.sort(key=lambda x: x[2], reverse=True)
 
         # Number of hands detected
         hand_count = len(results)
 
-        # Display the results
+        # Display the results (loop and associated code originally by them)
         for detection in results:
+
             # Scale to frame size with a margin for further classification
             id, name, confidence, x, y, w, h, bbox = bounding_box(frame, detection)
 
+            # Draw the bounding box (their code)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, f"{name} {confidence:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Classify the hand
+            # Classify the hand (our code)
             try:
+                # Transforms
                 bbox = transform_image(bbox)
                 bbox = tf.expand_dims(bbox, axis=0)
+
+                # Get the softmax predictions
                 softmax_preds = model.predict(bbox)
+
+                # Get the single highest prediction
                 prediction = np.argmax(softmax_preds)
+
+                # Get the label from classes corresponding to the prediction
                 label = classes[prediction]
                 cv2.putText(frame, f"{label}", (x, y + h + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             except:
                 pass
-            
+        
+        # Display the inference time and the number of hands detected (their code)
         cv2.putText(frame, f"Time: {inference_time:.2f} | Hands: {hand_count}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+        # Display the frame (their code)
         cv2.imshow("preview", frame)
 
+        # Break if 'q' is pressed
         if cv2.waitKey(1) == ord('q'):
             break
 
+    # Release the camera and close the window (their code)
     cap.release()
     cv2.destroyAllWindows()
     return

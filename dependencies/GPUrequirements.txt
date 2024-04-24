@@ -23,3 +23,6 @@ tensorflow-addons==0.22.0
 
 # Informative progress bars
 tqdm==4.66.2
+
+# Confusion matrix
+seaborn==0.13.2

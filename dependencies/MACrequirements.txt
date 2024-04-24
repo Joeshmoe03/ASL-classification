@@ -65,6 +65,7 @@ requests-oauthlib==2.0.0
 rsa==4.9
 scikit-learn==1.4.2
 scipy==1.13.0
+seaborn==0.13.2
 six==1.15.0
 stack-data==0.6.3
 tensorboard==2.10.1

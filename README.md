@@ -54,6 +54,9 @@ root_directory
      - [Apple Forum](https://forums.developer.apple.com/forums/thread/689300)
      - [Medium Article](https://medium.com/geekculture/installing-tensorflow-on-apple-silicon-84a28050d784)
      - [YouTube Video](https://www.youtube.com/watch?v=WFIZn6titnc)
+
+   Else:
+
    - `pip install -r ./dependencies/CPUrequirements.txt`
 
 ## **Training**

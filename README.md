@@ -110,3 +110,7 @@ Note that to perform training, you will need to:
 ## **Helpful Notes**
 
 For GPU users, [here is the video that finally got my tensorflow-gpu working](https://www.youtube.com/watch?v=NrJz3ACosJA)
+
+## **References**
+
+See the bottom of `end_to_end.ipynb`

@@ -1,6 +1,8 @@
-## **Setup Instructions**
+## **Intro**
 
-The starting points for this notebook that you should look at are this README and the `end_to_end.ipynb` file where we detail everything. We DO NOT expect you to train the model yourself. Instead we explain how we perform the training with `train.py` and simply refer to the saved model weights in the notebook.
+The starting points for this notebook that you should look at are this `README.md`, the `end_to_end.ipynb` file where we detail everything, and `train.py`. We DO NOT expect you to train the model yourself. Instead we explain how we perform the training with `train.py` and simply refer to the saved model weights in the notebook. You can additionally run a demo (see the disclaimer about the origin of the code in `demo.py` at the bottom of `README.md`) with `python demo.py`.
+
+## **Setup Instructions**
 
 **NOTE**: While I would love to provide a docker container, it is impossible to do with a HPC due to security concerns with root priviledge ([read more about it here](https://waterprogramming.wordpress.com/2022/05/25/containerizing-your-code-for-hpc-docker-singularity/)). Instead, you will have to set up your own environment. Also note that I can't come up with a containerized set-up approach to setting things up as the
 requirements change based on your hardware capabilities.

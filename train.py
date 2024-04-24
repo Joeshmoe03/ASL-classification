@@ -62,10 +62,10 @@ def main(args):
                                                 seed=args.resample)
 
     if tf.config.list_physical_devices('GPU'):
-        print("GPU is available. Using GPU.")
+        print("GPU available... Using GPU...")
         device = '/device:gpu:0'
     else:
-        print("GPU is not available. Using CPU.")
+        print("GPU not available... Using CPU...")
         device = '/device:cpu:0'
 
     with tf.device(device):

@@ -15,7 +15,10 @@ Total params: 15777501 (60.19 MB) (Use "model.summary()" to see this output)
 """
 
 def Vgg16(img_size, color, num_classes):
-    # Use a base vgg16 with that is not pretrained, 
+    # Use a base vgg16 with that is not pretrained. We used ChatGPT to convert our original model that was 
+    # implemented as a Sequential model to this, as the sequential equivalent was not working with the feature
+    # map extraction portion in the end_to_end notebook. The logic is ultimately the same, but the model is
+    # implemented slightly differently.
     base_model = vgg16.VGG16(
         include_top=False,
         weights = 'imagenet', #None,

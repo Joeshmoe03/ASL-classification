@@ -1,7 +1,7 @@
 import tensorflow as tf
-from keras.applications import vgg16
-from keras.models import Sequential, Model
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Activation
+from tensorflow.keras.applications import vgg16 # type: ignore
+from tensorflow.keras.models import Sequential, Model # type: ignore
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Activation # type: ignore
 
 """
 Summary of Model Archetecture:
@@ -18,7 +18,7 @@ def Vgg16(img_size, color, num_classes):
     # Use a base vgg16 with that is not pretrained, 
     base_model = vgg16.VGG16(
         include_top=False,
-        weights = 'imagenet',#None,
+        weights = 'imagenet', #None,
         input_shape=(img_size, img_size, 3 if color == 'rgb' else 1),
         pooling=None,
     )
@@ -27,18 +27,19 @@ def Vgg16(img_size, color, num_classes):
     for layer in base_model.layers:
         layer.trainable = True
 
-    # Create a new model by adding layers on top of the base model
-    model = Sequential()
-    model.add(base_model)
-
     # Flatten current model from 2x2x512 to 2048 nodes
-    model.add(Flatten())
+    flatten_layer = Flatten()
 
     # Reduce from 2048 -> 512 nodes
-    model.add(Dense(512, activation='relu')) # Can change this reduction accordingly
+    dense_layer1 = Dense(512, activation='relu') # Can change this reduction accordingly
 
     # Final classification layer
-    model.add(Dense(num_classes, activation='softmax'))
+    dense_layer2 = Dense(num_classes, activation='softmax')
+    
+    out = flatten_layer(base_model.output)
+    out = dense_layer1(out)
+    pred = dense_layer2(out)
+    model = Model(inputs = base_model.input, outputs = pred)
 
     return model
 

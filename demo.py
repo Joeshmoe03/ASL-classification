@@ -111,7 +111,7 @@ def transform_image(image):
     # TODO: Implement image transformations
 
     tf_image = tf.convert_to_tensor(image, dtype=tf.float32)
-    tf_image = tf.image.resize(tf_image, (32, 32))
+    tf_image = tf.image.resize(tf_image, (50, 50))
     tf_image = tf_image / 255.0
 
     return tf_image
@@ -121,19 +121,20 @@ def main():
     
     # path to weights
     convnet = os.path.join("temp", "convnet3_adam_categorical_crossentropy_lr0.001_mo9e-06_rs4264", "convnet3.h5")
-    vgg = os.path.join("temp", "vgg_adam_categorical_crossentropy_lr0.001_mo9e-06_rs9932", "vgg.h5")
+    vgg = os.path.join("temp", "vgg_adam_categorical_crossentropy_lr0.001_mo9e-06_rs132", "vgg.h5")
+    best_vgg = os.path.join('temp', 'vgg_adam_categorical_crossentropy_lr0.0001_mo9e-06_rs150', 'vgg.h5')
 
     yolo = YOLO("temp/YOLO/cross-hands-yolov4-tiny.cfg", "temp/YOLO/cross-hands-yolov4-tiny.weights", ["hand"])
     yolo.size = int(args.size)
     yolo.confidence = float(args.confidence)
 
     # Load the model for classification
-    model = Vgg16(32, 'rgb', 29)#ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
+    model = Vgg16(50, 'rgb', 29)#ConvNet3(64, num_classes=29, input_shape=(64, 64, 3))
     # Debugged building: https://stackoverflow.com/questions/59356410/tensorflow-2-0-build-function
     # for an explanation of why you need to call .build() before loading weights.
     model.build((None, 32, 32, 3))
     # Load the weights into the model
-    model.load_weights(vgg)
+    model.load_weights(best_vgg)
 
     cv2.namedWindow("preview", cv2.WINDOW_NORMAL)
     cap = cv2.VideoCapture(0)

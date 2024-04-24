@@ -26,3 +26,6 @@ tqdm==4.66.2
 
 # Confusion matrix
 seaborn==0.13.2
+
+# visualkeras
+visualkeras==0.0.2

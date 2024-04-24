@@ -37,7 +37,10 @@ def main(args):
     # directory under a folder named according to the sampling and hyperparameters.
     scratch_dir = initScratchDir(args)
     
-    # Source: https://stackoverflow.com/questions/42443936/keras-split-train-test-set-when-using-imagedatagenerator
+    # Source: https://stackoverflow.com/questions/42443936/keras-split-train-test-set-when-using-imagedatagenerator. We apply rescaling as our transformation with nearest fill mode. We also 
+    # perform the corresponding splitting. We then use the image generator to have images flow from the directory in batches according the batck size we specify. We use categorical here
+    # since all of our training runs so far have used categorical crossentropy (which requires one-hot encoding of the labels). We also specify the subset to be training or validation and the
+    # seed for greater replicability of the data between train and test runs.
     datagen = ImageDataGenerator(rescale=1./255,
                                  validation_split=args.valSize,
                                  fill_mode='nearest')
